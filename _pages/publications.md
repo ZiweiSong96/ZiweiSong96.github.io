@@ -19,7 +19,7 @@ redirect_from:
 
 
 ## Journal
-* **[Elsevier JSA 2020]** Optimized Co-scheduling of Mixed-precision Neural Network Accelerator for Real-time Multitasking Applications\
+* **[Elsevier JSA 2020]** Optimized Co-scheduling of Mixed-precision Neural Network Accelerator for Real-time Multitasking Applications \
 Wei Jiang **Ziwei Song**,Jinyu Zhan, Zhiyuan He, Xiangyu Wen and Ke Jiang
 
 * **[IEEE TII 2022]** Layer-Wise Security Protection for Deep Neural Networks in Industrial Cyber Physical Systems \
