@@ -1,7 +1,7 @@
 ---
 permalink: /
 title: ""
-excerpt: "About me"
+#excerpt: "About me"
 author_profile: true
 redirect_from: 
   - /home/
@@ -22,18 +22,25 @@ In my first year as a master student, I saw a paper on semi federal scheduling o
 Strange Interests
 ======
 Comic & Drama:
------- 
+
 Rick & Morty(OHHHHHHHHHH)
+
 Family Honour
+
 One Piece
+
 Saint Seiya: The Hades Chapter-Sanctuary
 
 Mystery story: 
-------
+
 Agatha Christie
+
 John Dickson Carr
+
 Ellery Queen
+
 Arthur Conan Doyle
+
 Harlan Coben.
 
 **Wait**
