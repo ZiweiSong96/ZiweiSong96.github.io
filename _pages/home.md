@@ -20,9 +20,21 @@ Strange words
 In my first year as a master student, I saw a paper on semi federal scheduling of real-time systems. Since then, I have wanted to study real-time systems. But unfortunately, due to the master advisor's projects and other reasons (don't ask), there is nothing more to do except to read the papers of RTSS in my spare time. B!!!u!!!t!!!, In the next few years, it seems I will finally have the opportunity to complete my dream of publishing an RTSS paper in the City University of Hong Kong.
 
 Strange Interests
+======
+Comic & Drama:
+------ 
+Rick & Morty(OHHHHHHHHHH)
+Family Honour
+One Piece
+Saint Seiya: The Hades Chapter-Sanctuary
+
+Mystery story: 
 ------
-Comic & Drama: Rick & Morty(OHHHHHHHHHH), Family Honour, One Piece, Saint Seiya: The Hades Chapter - Sanctuary
-Mystery story: Agatha Christie, John Dickson Carr, Ellery Queen, Arthur Conan Doyle, Harlan Coben.
+Agatha Christie
+John Dickson Carr
+Ellery Queen
+Arthur Conan Doyle
+Harlan Coben.
 
 **Wait**
 
