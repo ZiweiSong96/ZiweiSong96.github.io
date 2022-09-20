@@ -9,51 +9,30 @@ redirect_from:
 
 {% include base_path %}
 
-Education
-======
-* B.S. in GitHub, GitHub University, 2012
-* M.S. in Jekyll, GitHub University, 2014
-* Ph.D in Version Control Theory, GitHub University, 2018 (expected)
+## Research Interests
+* Autonomous Driving Systems
+* Real-Time Inteligence on Edge/Device 
+* Internet-of-Things
 
-Work experience
-======
-* Summer 2015: Research Assistant
-  * Github University
-  * Duties included: Tagging issues
-  * Supervisor: Professor Git
+## Education
+* Ph.D., Computer Science, City University of Hong Kong, June. 2023 ~
+  * Advisor: [Nan Guan](https://www.cs.cityu.edu.hk/~nanguan/) 
 
-* Fall 2015: Research Assistant
-  * Github University
-  * Duties included: Merging pull requests
-  * Supervisor: Professor Hub
-  
-Skills
-======
-* Skill 1
-* Skill 2
-  * Sub-skill 2.1
-  * Sub-skill 2.2
-  * Sub-skill 2.3
-* Skill 3
+* M.S., Software Engineering, University of Electronic Science and Technology of China, Sep. 2019 ~ June. 2022.
+  * Advisor: [WJ] 
 
-Publications
-======
-  <ul>{% for post in site.publications %}
-    {% include archive-single-cv.html %}
-  {% endfor %}</ul>
-  
-Talks
-======
-  <ul>{% for post in site.talks %}
-    {% include archive-single-talk-cv.html %}
-  {% endfor %}</ul>
-  
-Teaching
-======
-  <ul>{% for post in site.teaching %}
-    {% include archive-single-cv.html %}
-  {% endfor %}</ul>
-  
-Service and leadership
-======
-* Currently signed in to 43 different slack teams
+* B.S., Software Engineering, University of Electronic Science and Technology of China, Sep. 2015 ~ June. 2019.
+
+## Experience
+* Chengdu Taiji Bear Technology Co., Ltd., China, Jul. 2018 ~ Apr. 2019.
+  * Research Intern, FPGA Group
+  * Topic: FPGA-based accelerator design
+
+* International Technological University, USA, Jul. 2016 ~ Aug. 2016.
+  * Research Intern, Embedded System Group
+  * Topic: line patrol robot design
+
+## Honors & Awards
+* Outstanding Graduate, The Education Department of Sichuan Province, 2022 
+* Outstanding Graduate, University of Electronic Science and Technology of China, 2022
+* National Scholarship, Ministry of Education, 2021
