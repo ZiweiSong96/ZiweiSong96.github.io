@@ -11,12 +11,13 @@ redirect_from:
 
 Brief Intro
 ======
-I will be a Ph.D. student in Jun. 2023, and advised by Nan Guan at the Department of Computer Science, City University of Hong Kong, Hong Kong. My research interests lie in Autonomous Driving Systems, Real-Time Inteligence on Edge/Device and Internet-of-Things. 
+I will be a Ph.D. student in Jun. 2023, and advised by Dr. Nan Guan at the Department of Computer Science, City University of Hong Kong, Hong Kong. My research interests lie in Autonomous Driving Systems, Real-Time Inteligence on Edge/Device and Internet-of-Things. 
 
 Prior to my Ph.D. course, I received my B.S. and M.S. degree from the School of Information and Software Engineering, University of Electronic Science and Technology of China in 2019 and 2022.
 
 
 ## Strange words
+Everything comes from Liu & Layland boundary!
 
 In my first year as a master student, I saw a paper on semi federal scheduling of real-time systems. Since then, I have wanted to study real-time systems. But unfortunately, due to the master advisor's projects and other reasons (don't ask), there is nothing more to do except to read the papers of RTSS in my spare time. B!!!u!!!t!!!, In the next few years, it seems I will finally have the opportunity to complete my dream of publishing an RTSS paper in the City University of Hong Kong.
 
@@ -46,4 +47,4 @@ Mystery story:
 
 **Wait**
 
-Wow!
+Wow! Why White Cotton Socks?

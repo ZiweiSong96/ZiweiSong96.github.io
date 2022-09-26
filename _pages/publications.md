@@ -14,7 +14,7 @@ redirect_from:
     **Juheon Yi**, <span style="color:lightgray">Seongwon Kim, Joongheon Kim, and Sunghyun Choi</span>
 -->
 ## Conference
-* **[CODES+ISSS 2021]** Work-in-Progress: Critical-Weight Based Locking Scheme for DNN IP Protection in Edge Computing  
+* **[CODES+ISSS 2021]** Work-in-Progress: Critical-Weight Based Locking Scheme for DNN IP Protection in Edge Computing \
 **Ziwei Song**, Wei Jiang, Jinyu Zhan, Xiangyu Wen and Chen Bian
 
 
