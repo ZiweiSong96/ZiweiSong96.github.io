@@ -19,7 +19,7 @@ Prior to my Ph.D. course, I received my B.S. and M.S. degree from the School of 
 ## Strange words
 Everything comes from Liu & Layland boundary!
 
-In my first year as a master student, I saw a paper on semi federal scheduling of real-time systems[[Semi-Federated](https://ZiweiSong96.github.io/files/Semi-Federated.pdf)]. (My favorite paper). Since then, I have wanted to study real-time systems. But unfortunately, due to the master advisor's projects and other reasons (don't ask), there is nothing more to do except to read the papers of RTSS in my spare time. B!!!u!!!t!!!, In the next few years, it seems I will finally have the opportunity to complete my dream of publishing an RTSS paper in the City University of Hong Kong.
+In my first year as a master student, I saw a paper on semi federal scheduling of real-time systems[[Semi-Federated](https://ZiweiSong96.github.io/files/Semi-Federated.pdf)](My favorite paper). Since then, I have wanted to study real-time systems. But unfortunately, due to the master advisor's projects and other reasons (don't ask), there is nothing more to do except to read the papers of RTSS in my spare time. B!!!u!!!t!!!, In the next few years, it seems I will finally have the opportunity to complete my dream of publishing an RTSS paper in the City University of Hong Kong.
 
 ## Strange Interests
 
