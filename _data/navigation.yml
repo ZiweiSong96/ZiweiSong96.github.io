@@ -1,7 +1,10 @@
 # main links links
 main:
-  - title: "Home"
-    url: /home/
+#  - title: "Home"
+#    url: /home/
+
+  - title: "SUNG TZU WEI"
+    url: /markdown/
 
   - title: "Publications"
     url: /publications/
@@ -20,5 +23,4 @@ main:
 #  - title: "Blog Posts"
 #    url: /year-archive/
     
-  - title: "Guide"
-    url: /markdown/
+
