@@ -3,13 +3,13 @@ main:
 #  - title: "Home"
 #    url: /home/
 
-  - title: "SUNG TZU WEI"
+  - title: "SUNG TZU WEI's Strange Word"
     url: /markdown/
 
   - title: "Publications"
     url: /publications/
 
-  - title: "About me"
+  - title: "About Me"
     url: /cv/
 #  - title: "Talks"
 #    url: /talks/    

@@ -9,4 +9,4 @@ redirect_from:
 
 ## WHY?
 
-* Say goodbye to SOME Bull Shit!
+* Say goodbye to Some Bull Shit!
