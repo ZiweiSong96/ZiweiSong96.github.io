@@ -18,7 +18,7 @@ redirect_from:
   * Advisor: [Nan Guan](https://www.cs.cityu.edu.hk/~nanguan/) 
 
 * M.S., Software Engineering, University of Electronic Science and Technology of China, Sep. 2019 ~ June. 2022.
-  * Advisor: [WJ] 
+  * Advisor: [Jiang Wei] 
 
 * B.S., Software Engineering, University of Electronic Science and Technology of China, Sep. 2015 ~ June. 2019.
 
