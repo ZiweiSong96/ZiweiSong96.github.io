@@ -9,4 +9,4 @@ redirect_from:
 
 ## WHY?
 
-* Say goodbye to Some Bull Shit!
+* Find a place to write some things strange! Then he suddenly stood up, very quickly ah!
