@@ -474,7 +474,7 @@
 
         if (!data.length) {
             ctx.fillStyle = 'rgba(139, 156, 177, 0.65)';
-            ctx.font = '9px "JetBrains Mono", ui-monospace, monospace';
+            ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
             ctx.textAlign = 'center';
             ctx.fillText('waiting for samples', w / 2, h / 2 + 3);
             ctx.textAlign = 'left';
@@ -520,8 +520,8 @@
         ctx.stroke();
         ctx.setLineDash([]);
         ctx.fillStyle = 'rgba(242, 184, 107, 0.82)';
-        ctx.font = '8px "JetBrains Mono", ui-monospace, monospace';
-        ctx.fillText('DL ' + state.deadline, 2, Math.max(8, deadlineY - 3));
+        ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+        ctx.fillText('DL ' + state.deadline, 2, Math.max(10, deadlineY - 4));
         ctx.restore();
 
         if (stats.p99 !== null) {
@@ -712,7 +712,7 @@
             ctx.fill();
             ctx.stroke();
             ctx.fillStyle = 'rgba(62, 230, 192, 0.9)';
-            ctx.font = '7px "JetBrains Mono", ui-monospace, monospace';
+            ctx.font = '8px "JetBrains Mono", ui-monospace, monospace';
             ctx.fillText('EXIT', roadW * 0.64 + 6, roadH * 0.31 + 9);
         }
 
@@ -736,7 +736,7 @@
             ctx.closePath();
             ctx.fill();
             ctx.fillStyle = 'rgba(7, 11, 16, 0.9)';
-            ctx.font = '7px "JetBrains Mono", ui-monospace, monospace';
+            ctx.font = '8px "JetBrains Mono", ui-monospace, monospace';
             ctx.fillText('!', cx - 1, cy - 17);
         }
 
@@ -747,7 +747,7 @@
             ctx.fill();
             ctx.stroke();
             ctx.fillStyle = 'rgba(62, 230, 192, 0.9)';
-            ctx.font = '8px "JetBrains Mono", ui-monospace, monospace';
+            ctx.font = '9px "JetBrains Mono", ui-monospace, monospace';
             ctx.fillText('P', roadW * 0.76 + 8, roadH * 0.81 + 10);
         }
 
@@ -856,14 +856,16 @@
         ctx.stroke();
         ctx.restore();
 
-        ctx.fillStyle = 'rgba(7, 11, 16, 0.85)';
-        ctx.strokeStyle = 'rgba(62, 230, 192, 0.45)';
-        roundRect(ctx, tx - 10, ty - 10, 20, 20, 4);
+        ctx.fillStyle = 'rgba(7, 11, 16, 0.88)';
+        ctx.strokeStyle = 'rgba(62, 230, 192, 0.5)';
+        roundRect(ctx, tx - 12, ty - 12, 24, 24, 5);
         ctx.fill();
         ctx.stroke();
-        ctx.fillStyle = 'rgba(62, 230, 192, 0.8)';
-        ctx.font = '6px "JetBrains Mono", ui-monospace, monospace';
-        ctx.fillText('MoE', tx - 8, ty + 3);
+        ctx.fillStyle = 'rgba(62, 230, 192, 0.85)';
+        ctx.font = '8px "JetBrains Mono", ui-monospace, monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('MoE', tx, ty + 3);
+        ctx.textAlign = 'left';
 
         if (state.spotlight === 'rtmoe') {
             ctx.save();
@@ -921,12 +923,12 @@
         ctx.globalAlpha = alpha;
         ctx.fillStyle = 'rgba(7, 11, 16, 0.88)';
         ctx.strokeStyle = 'rgba(62, 230, 192, 0.45)';
-        roundRect(ctx, 10, 10, 166, 20, 5);
+        roundRect(ctx, 10, 10, 194, 24, 5);
         ctx.fill();
         ctx.stroke();
         ctx.fillStyle = 'rgba(62, 230, 192, 0.95)';
-        ctx.font = '8px "JetBrains Mono", ui-monospace, monospace';
-        ctx.fillText('INSTRUCTION · ' + state.toast.text, 18, 23);
+        ctx.font = '9px "JetBrains Mono", ui-monospace, monospace';
+        ctx.fillText('INSTRUCTION · ' + state.toast.text, 18, 26);
         ctx.restore();
     }
 
@@ -977,7 +979,7 @@
 
             if (state.flash > 0.45) {
                 ctx.fillStyle = 'rgba(255, 122, 122, 0.9)';
-                ctx.font = '9px "JetBrains Mono", ui-monospace, monospace';
+                ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
                 ctx.textAlign = 'center';
                 ctx.fillText('CONTROL DEADLINE MISS', w / 2, top - 8);
                 ctx.textAlign = 'left';
