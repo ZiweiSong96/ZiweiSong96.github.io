@@ -140,6 +140,7 @@
         usage: new Array(EXPERTS).fill(0),
         latencies: [],
         tokens: [],
+        actions: [],
         lastLatency: 0,
         lastMisses: 0,
         lastBatch: 0,
@@ -455,14 +456,23 @@
         if (state.latencies.length > WINDOW) state.latencies.shift();
         state.flash = latency > state.deadline ? 1 : Math.max(0, state.flash - 0.2);
 
+        if (!reduceMotion.matches) {
+            state.actions.push({
+                start: performance.now(),
+                duration: clamp(300 + latency * 5.5, 420, 1200),
+                miss: latency > state.deadline
+            });
+            if (state.actions.length > 6) state.actions.shift();
+        }
+
         var carYNow = state.carY || laneY(INSTRUCTIONS[state.instruction].lane);
         state.tokens = batch.map(function (token, index) {
             return {
                 expert: token.expert,
                 hit: token.hit,
                 age: reduceMotion.matches ? 0.55 : 0,
-                sx: carX() + 18 + (state.rng() - 0.5) * 8,
-                sy: carYNow + (state.rng() - 0.5) * 10,
+                sx: carX() + 4 + (state.rng() - 0.5) * 3,
+                sy: carYNow - 16 + (state.rng() - 0.5) * 3,
                 delay: (index / batch.length) * 0.12
             };
         });
@@ -941,6 +951,20 @@
         ctx.fill();
         ctx.shadowBlur = 0;
 
+        ctx.strokeStyle = 'rgba(62, 230, 192, 0.65)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(2, -12);
+        ctx.lineTo(6, -20);
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(62, 230, 192, 0.95)';
+        ctx.shadowColor = 'rgba(62, 230, 192, 0.8)';
+        ctx.shadowBlur = 6;
+        ctx.beginPath();
+        ctx.arc(6, -20, 1.6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
         ctx.fillStyle = braking ? 'rgba(255, 45, 45, 1)' : 'rgba(255, 45, 45, 0.8)';
         ctx.shadowColor = 'rgba(255, 45, 45, 0.85)';
         ctx.shadowBlur = braking ? 14 : 6;
@@ -986,6 +1010,144 @@
         return { x: geometry.inputX, y: geometry.inputY };
     }
 
+    function quadPoint(path, t) {
+        var oneMinus = 1 - t;
+        return {
+            x: oneMinus * oneMinus * path.x0 + 2 * oneMinus * t * path.cx + t * t * path.x1,
+            y: oneMinus * oneMinus * path.y0 + 2 * oneMinus * t * path.cy + t * t * path.y1
+        };
+    }
+
+    function drawArrowhead(ctx, path, t, color) {
+        var point = quadPoint(path, t);
+        var previous = quadPoint(path, Math.max(0, t - 0.03));
+        var angle = Math.atan2(point.y - previous.y, point.x - previous.x);
+        ctx.save();
+        ctx.translate(point.x, point.y);
+        ctx.rotate(angle);
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.moveTo(4, 0);
+        ctx.lineTo(-3, -2.6);
+        ctx.lineTo(-3, 2.6);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+    }
+
+    function forwardPathGeometry() {
+        var carCX = carX();
+        var carCY = (state.carY || laneY(1)) - 16;
+        var target = brainTarget();
+        return {
+            x0: carCX + 4,
+            y0: carCY,
+            cx: (carCX + target.x) / 2,
+            cy: Math.min(carCY, target.y) - 34,
+            x1: target.x,
+            y1: target.y
+        };
+    }
+
+    function actionPathGeometry() {
+        var g = brainGeometry();
+        var carCX = carX();
+        var carCY = state.carY || laneY(1);
+        var startX = g.cx + 8;
+        var startY = g.cy + g.ch - 8;
+        return {
+            x0: startX,
+            y0: startY,
+            cx: (startX + carCX) / 2,
+            cy: Math.max(startY, carCY) + 58,
+            x1: carCX + 10,
+            y1: carCY
+        };
+    }
+
+    function drawLoopPaths(ctx) {
+        var forward = forwardPathGeometry();
+        var action = actionPathGeometry();
+
+        ctx.save();
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 7]);
+
+        ctx.strokeStyle = 'rgba(62, 230, 192, 0.2)';
+        ctx.lineDashOffset = -state.roadOffset * 0.4;
+        ctx.beginPath();
+        ctx.moveTo(forward.x0, forward.y0);
+        ctx.quadraticCurveTo(forward.cx, forward.cy, forward.x1, forward.y1);
+        ctx.stroke();
+
+        ctx.strokeStyle = 'rgba(242, 184, 107, 0.2)';
+        ctx.lineDashOffset = state.roadOffset * 0.4;
+        ctx.beginPath();
+        ctx.moveTo(action.x0, action.y0);
+        ctx.quadraticCurveTo(action.cx, action.cy, action.x1, action.y1);
+        ctx.stroke();
+        ctx.restore();
+
+        drawArrowhead(ctx, forward, 0.84, 'rgba(62, 230, 192, 0.55)');
+        drawArrowhead(ctx, action, 0.84, 'rgba(242, 184, 107, 0.6)');
+
+        var forwardMid = quadPoint(forward, 0.30);
+        var actionMid = quadPoint(action, 0.45);
+        ctx.save();
+        ctx.font = '6px "JetBrains Mono", ui-monospace, monospace';
+        ctx.fillStyle = 'rgba(62, 230, 192, 0.55)';
+        ctx.fillText('uplink', forwardMid.x, forwardMid.y - 6);
+        ctx.fillStyle = 'rgba(242, 184, 107, 0.6)';
+        ctx.fillText('decision', actionMid.x, actionMid.y + 10);
+        ctx.restore();
+    }
+
+    function drawActions(ctx) {
+        var now = performance.now();
+        var path = actionPathGeometry();
+
+        state.actions.forEach(function (action) {
+            var elapsed = now - action.start;
+            var t = clamp(elapsed / action.duration, 0, 1);
+            var point = quadPoint(path, t);
+            var previous = quadPoint(path, Math.max(0, t - 0.06));
+            var color = action.miss ? 'rgba(255, 107, 107, 0.95)' : 'rgba(242, 184, 107, 0.95)';
+
+            ctx.save();
+            ctx.strokeStyle = color;
+            ctx.globalAlpha = 0.35;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(previous.x, previous.y);
+            ctx.lineTo(point.x, point.y);
+            ctx.stroke();
+
+            ctx.globalAlpha = 1;
+            ctx.fillStyle = color;
+            ctx.shadowColor = color;
+            ctx.shadowBlur = 8;
+            ctx.translate(point.x, point.y);
+            ctx.rotate(Math.PI / 4);
+            ctx.fillRect(-2.2, -2.2, 4.4, 4.4);
+            ctx.restore();
+
+            if (t >= 1) {
+                var after = elapsed - action.duration;
+                var alpha = clamp(1 - after / 320, 0, 1);
+                if (alpha > 0) {
+                    ctx.save();
+                    ctx.globalAlpha = alpha;
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.arc(carX() + 6, state.carY || laneY(1), 10 + after * 0.04, 0, Math.PI * 2);
+                    ctx.stroke();
+                    ctx.restore();
+                }
+            }
+        });
+    }
+
     function drawBrain(ctx) {
         var g = brainGeometry();
         var cx = g.cx;
@@ -1000,16 +1162,7 @@
         var blockH = compact ? 7 : 9;
         var blockCount = 3;
 
-        ctx.save();
-        ctx.strokeStyle = 'rgba(62, 230, 192, 0.22)';
-        ctx.lineWidth = 1;
-        ctx.setLineDash([4, 8]);
-        ctx.lineDashOffset = -state.roadOffset * 0.4;
-        ctx.beginPath();
-        ctx.moveTo(carCX + 18, carCY);
-        ctx.lineTo(g.inputX, g.inputY);
-        ctx.stroke();
-        ctx.restore();
+        drawLoopPaths(ctx);
 
         ctx.fillStyle = 'rgba(242, 184, 107, 0.35)';
         var pins = 7;
@@ -1180,37 +1333,45 @@
     }
 
     function drawTokens(ctx) {
-        var target = brainTarget();
-        var tx = target.x;
-        var ty = target.y;
+        var path = forwardPathGeometry();
 
         state.tokens.forEach(function (token) {
             var t = clamp((token.age - token.delay) / Math.max(0.001, 1 - token.delay), 0, 1);
             if (t <= 0) return;
-            var cpX = token.sx + (tx - token.sx) * 0.38;
-            var cpY = token.sy - Math.max(18, (token.sy - ty) * 0.55);
-            var oneMinus = 1 - t;
-            var x = oneMinus * oneMinus * token.sx + 2 * oneMinus * t * cpX + t * t * tx;
-            var y = oneMinus * oneMinus * token.sy + 2 * oneMinus * t * cpY + t * t * ty;
+            var localPath = {
+                x0: token.sx,
+                y0: token.sy,
+                cx: path.cx,
+                cy: path.cy,
+                x1: path.x1,
+                y1: path.y1
+            };
+            var point = quadPoint(localPath, t);
+            var previous = quadPoint(localPath, Math.max(0, t - 0.08));
             var color = COLORS[token.expert];
-            var radius = 2.2 + (1 - t) * 0.8;
+            var size = 2.0 + (1 - t) * 0.8;
 
             ctx.save();
-            ctx.globalAlpha = 1 - t * 0.55;
+            ctx.strokeStyle = color;
+            ctx.globalAlpha = (1 - t) * 0.28;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(previous.x, previous.y);
+            ctx.lineTo(point.x, point.y);
+            ctx.stroke();
+
+            ctx.globalAlpha = 1 - t * 0.45;
             ctx.fillStyle = color;
             ctx.shadowColor = color;
-            ctx.shadowBlur = 8;
-            ctx.beginPath();
-            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.shadowBlur = 6;
+            roundRect(ctx, point.x - size / 2, point.y - size / 2, size, size, 1);
             ctx.fill();
             ctx.shadowBlur = 0;
 
             if (!token.hit) {
-                ctx.strokeStyle = 'rgba(255, 122, 122, 0.75)';
+                ctx.strokeStyle = 'rgba(255, 122, 122, 0.8)';
                 ctx.lineWidth = 1;
-                ctx.beginPath();
-                ctx.arc(x, y, radius + 2.4, 0, Math.PI * 2);
-                ctx.stroke();
+                ctx.strokeRect(point.x - size / 2 - 1.5, point.y - size / 2 - 1.5, size + 3, size + 3);
             }
             ctx.restore();
         });
@@ -1268,6 +1429,7 @@
             ctx.restore();
         }
 
+        drawActions(ctx);
         drawTokens(ctx);
         drawToast(ctx, now);
 
@@ -1278,13 +1440,6 @@
             ctx.fillStyle = vignette;
             ctx.fillRect(0, 0, w, h);
 
-            if (state.flash > 0.45) {
-                ctx.fillStyle = 'rgba(255, 122, 122, 0.9)';
-                ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
-                ctx.textAlign = 'center';
-                ctx.fillText('CONTROL DEADLINE MISS', w / 2, top - 8);
-                ctx.textAlign = 'left';
-            }
         }
     }
 
@@ -1555,6 +1710,7 @@
         state.usage = new Array(EXPERTS).fill(0);
         state.latencies = [];
         state.tokens = [];
+        state.actions = [];
         state.lastLatency = 0;
         state.lastMisses = 0;
         state.lastBatch = 0;
@@ -1676,6 +1832,10 @@
                     token.age = Math.min(1, token.age + dt / TICK_MS);
                 });
                 state.tokens = state.tokens.filter(function (token) { return token.age < 1; });
+                var actionNow = performance.now();
+                state.actions = state.actions.filter(function (action) {
+                    return actionNow - action.start < action.duration + 320;
+                });
                 state.flash *= 0.94;
                 var targetSpeed = INSTRUCTIONS[state.instruction].slow
                     ? 0.45
