@@ -4,9 +4,11 @@ primary_name: "Ziwei Song"
 navbar_name: "Ziwei Song"
 
 positions:
-  - name: "Ph.D. Student in Computer Science"
+  - name: "4th-year Ph.D. Student in Computer Science"
   - name: "City University of Hong Kong"
     url: "https://www.cs.cityu.edu.hk/"
+  - name: "Member, CityU MLab"
+    url: "https://mlab.hk/"
 
 location: "Hong Kong SAR"
 
@@ -22,20 +24,23 @@ cv_link: "/cv/"
 portrait_url: "/assets/images/photos/avatar-v2.webp"
 
 research_interests:
-  - "Real-Time AI Systems"
-  - "Autonomous Driving"
-  - "Mixture-of-Experts Inference"
+  - "Real-Time Scheduling for MoE Inference"
+  - "Real-Time LLM Agent Scheduling"
+  - "LLM Agents for OS Kernel Formal Verification"
+  - "Autonomous Driving Systems"
   - "Edge Intelligence"
 
 short_bio_text_justify: false
 short_bio: >-
   <p>
-    I am a Ph.D. student in the <a href="https://www.cs.cityu.edu.hk/" target="_blank">Department of Computer Science</a>
+    I am a 4th-year Ph.D. student in the <a href="https://www.cs.cityu.edu.hk/" target="_blank">Department of Computer Science</a>
     at <a href="https://www.cityu.edu.hk/" target="_blank">City University of Hong Kong</a>, advised by
-    <a href="https://www.cs.cityu.edu.hk/~nanguan/" target="_blank">Prof. Nan Guan</a>. My research sits at the
-    intersection of real-time systems and AI: making large-model inference — especially mixture-of-experts —
-    predictable under tight memory and latency budgets, and building autonomous driving systems that can be
-    reconfigured on the fly.
+    <a href="https://www.cs.cityu.edu.hk/~nanguan/" target="_blank">Prof. Nan Guan</a>, and a member of
+    <a href="https://mlab.hk/" target="_blank">CityU MLab</a>. My research sits at the intersection of real-time
+    systems and AI: making large-model inference — especially mixture-of-experts — predictable under tight
+    memory and latency budgets, and building autonomous driving systems that can be reconfigured on the fly.
+    More recently, I have been exploring real-time scheduling of LLM agents and LLM agents for OS-kernel
+    formal verification.
   </p>
   <p>
     Prior to my Ph.D., I received my B.S. and M.S. degrees in Software Engineering from the
