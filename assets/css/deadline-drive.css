@@ -193,6 +193,30 @@
     letter-spacing: 0.02em;
 }
 
+.dd-flow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.2rem 0.35rem;
+    margin-top: -0.1rem;
+    color: var(--lab-dim);
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    line-height: 1.4;
+}
+
+.dd-flow i {
+    color: var(--accent);
+    font-style: normal;
+    opacity: 0.7;
+}
+
+.dd-flow b {
+    margin-left: auto;
+    color: var(--accent);
+    font-weight: 500;
+}
+
 .dd-chart-head {
     margin-top: 0.15rem;
 }
@@ -239,6 +263,15 @@
 
 .dd-slot.is-resident .dd-dot {
     opacity: 1;
+}
+
+.dd-slot.is-selected {
+    box-shadow: 0 0 0 1px currentColor, 0 0 14px rgba(62, 230, 192, 0.18);
+}
+
+.dd-slot.is-selected .dd-dot {
+    opacity: 1;
+    transform: scale(1.3);
 }
 
 .dd-slot.is-loading {

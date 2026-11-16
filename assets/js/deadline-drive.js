@@ -12,6 +12,7 @@
     var resetBtn = root.querySelector('#dd-reset');
     var instrLabel = root.querySelector('#dd-instr-label');
     var memLabel = root.querySelector('#dd-mem-label');
+    var selectedLabel = root.querySelector('#dd-selected');
     var p99Inline = root.querySelector('#dd-p99-inline');
     var mP99 = root.querySelector('#dd-m-p99');
     var mMiss = root.querySelector('#dd-m-miss');
@@ -134,6 +135,7 @@
         policy: 'rtmoe',
         instruction: 'cruise',
         residents: [],
+        selected: [],
         lastUsed: new Array(EXPERTS).fill(-1),
         usage: new Array(EXPERTS).fill(0),
         latencies: [],
@@ -239,10 +241,19 @@
     function updateRack() {
         for (var i = 0; i < EXPERTS; i += 1) {
             var resident = state.residents.indexOf(i) !== -1;
+            var selected = state.selected.indexOf(i) !== -1;
             slots[i].classList.toggle('is-resident', resident);
-            slots[i].setAttribute('aria-label', 'Expert E' + (i + 1) + (resident ? ': resident in memory' : ': not resident'));
+            slots[i].classList.toggle('is-selected', selected);
+            var label = 'Expert E' + (i + 1) + (resident ? ': resident in memory' : ': not resident');
+            if (selected) label += ', selected this tick';
+            slots[i].setAttribute('aria-label', label);
         }
         memLabel.textContent = state.residents.length + ' / ' + EXPERTS + ' in memory';
+        if (selectedLabel) {
+            selectedLabel.textContent = state.selected.length
+                ? state.selected.map(function (expert) { return 'E' + (expert + 1); }).join(' + ')
+                : '—';
+        }
     }
 
     function hottestNonResident() {
@@ -421,6 +432,16 @@
             state.lastUsed[expert] = state.tick;
             flashSlot(expert, 'is-loading');
         });
+
+        var counts = new Array(EXPERTS).fill(0);
+        batch.forEach(function (token) { counts[token.expert] += 1; });
+        state.selected = counts
+            .map(function (count, index) { return { count: count, index: index }; })
+            .filter(function (item) { return item.count > 0; })
+            .sort(function (a, b) { return b.count - a.count; })
+            .slice(0, 2)
+            .map(function (item) { return item.index; })
+            .sort(function (a, b) { return a - b; });
 
         var compute = 6 + batchSize * 1.35;
         var loadCost = misses.size * 11;
@@ -937,11 +958,35 @@
         ctx.restore();
     }
 
-    function drawUplink(ctx) {
-        var tx = roadW * 0.93;
-        var ty = roadH * 0.10;
+    function brainGeometry() {
+        var pw = clamp(roadW * 0.38, 132, 176);
+        var ph = clamp(roadH * 0.34, 60, 88);
+        var px = roadW - pw - 10;
+        var py = 8;
+        return {
+            pw: pw,
+            ph: ph,
+            px: px,
+            py: py,
+            routerX: px + 22,
+            routerY: py + ph * 0.52,
+            gridX: px + 44,
+            gridY: py + 22,
+            gridW: pw - 54,
+            gridH: ph - 36
+        };
+    }
+
+    function brainTarget() {
+        var geometry = brainGeometry();
+        return { x: geometry.routerX, y: geometry.routerY };
+    }
+
+    function drawBrain(ctx) {
+        var g = brainGeometry();
         var cx = carX();
         var cy = state.carY || laneY(1);
+        var target = brainTarget();
 
         ctx.save();
         ctx.strokeStyle = 'rgba(62, 230, 192, 0.22)';
@@ -950,36 +995,104 @@
         ctx.lineDashOffset = -state.roadOffset * 0.4;
         ctx.beginPath();
         ctx.moveTo(cx + 18, cy);
-        ctx.lineTo(tx, ty);
+        ctx.lineTo(target.x, target.y);
         ctx.stroke();
         ctx.restore();
 
+        ctx.save();
         ctx.fillStyle = 'rgba(7, 11, 16, 0.88)';
-        ctx.strokeStyle = 'rgba(62, 230, 192, 0.5)';
-        roundRect(ctx, tx - 12, ty - 12, 24, 24, 5);
+        ctx.strokeStyle = state.spotlight === 'rtmoe' ? 'rgba(62, 230, 192, 0.75)' : 'rgba(62, 230, 192, 0.35)';
+        ctx.lineWidth = 1;
+        roundRect(ctx, g.px, g.py, g.pw, g.ph, 8);
         ctx.fill();
         ctx.stroke();
-        ctx.fillStyle = 'rgba(62, 230, 192, 0.85)';
+
+        ctx.fillStyle = 'rgba(62, 230, 192, 0.9)';
+        ctx.font = '9px "JetBrains Mono", ui-monospace, monospace';
+        ctx.fillText('LLM · MoE', g.px + 10, g.py + 14);
+        ctx.fillStyle = 'rgba(143, 163, 184, 0.8)';
+        ctx.font = '7px "JetBrains Mono", ui-monospace, monospace';
+        ctx.fillText('inference', g.px + 65, g.py + 14);
+
+        ctx.fillStyle = 'rgba(10, 16, 24, 0.95)';
+        ctx.strokeStyle = 'rgba(62, 230, 192, 0.6)';
+        roundRect(ctx, g.routerX - 9, g.routerY - 9, 18, 18, 4);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(62, 230, 192, 0.95)';
         ctx.font = '8px "JetBrains Mono", ui-monospace, monospace';
         ctx.textAlign = 'center';
-        ctx.fillText('MoE', tx, ty + 3);
+        ctx.fillText('R', g.routerX, g.routerY + 3);
+        ctx.textAlign = 'left';
+
+        var cellW = g.gridW / 4;
+        var cellH = g.gridH / 2;
+
+        state.selected.forEach(function (expert) {
+            var col = expert % 4;
+            var row = Math.floor(expert / 4);
+            var cellX = g.gridX + col * cellW + (cellW - 3) / 2;
+            var cellY = g.gridY + row * cellH + (cellH - 3) / 2;
+            ctx.strokeStyle = 'rgba(62, 230, 192, 0.4)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(g.routerX + 9, g.routerY);
+            ctx.lineTo(cellX, cellY);
+            ctx.stroke();
+        });
+
+        for (var i = 0; i < EXPERTS; i += 1) {
+            var col = i % 4;
+            var row = Math.floor(i / 4);
+            var x = g.gridX + col * cellW;
+            var y = g.gridY + row * cellH;
+            var w = cellW - 3;
+            var h = cellH - 3;
+            var resident = state.residents.indexOf(i) !== -1;
+            var selected = state.selected.indexOf(i) !== -1;
+
+            ctx.globalAlpha = resident ? 0.9 : 0.5;
+            ctx.fillStyle = resident ? COLORS[i] : 'rgba(255, 255, 255, 0.06)';
+            roundRect(ctx, x, y, w, h, 2);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+
+            ctx.strokeStyle = selected ? 'rgba(255, 255, 255, 0.9)' : 'rgba(255, 255, 255, 0.08)';
+            ctx.lineWidth = selected ? 1.2 : 0.7;
+            roundRect(ctx, x, y, w, h, 2);
+            ctx.stroke();
+
+            if (w > 20 && h > 15) {
+                ctx.fillStyle = resident ? 'rgba(7, 11, 16, 0.8)' : 'rgba(143, 163, 184, 0.6)';
+                ctx.font = '6px "JetBrains Mono", ui-monospace, monospace';
+                ctx.fillText('E' + (i + 1), x + 3, y + h - 3);
+            }
+        }
+
+        ctx.fillStyle = 'rgba(143, 163, 184, 0.85)';
+        ctx.font = '7px "JetBrains Mono", ui-monospace, monospace';
+        ctx.fillText('top-2 · 8 experts', g.px + 10, g.py + g.ph - 7);
+        ctx.textAlign = 'right';
+        ctx.fillText(state.residents.length + '/8 mem', g.px + g.pw - 10, g.py + g.ph - 7);
         ctx.textAlign = 'left';
 
         if (state.spotlight === 'rtmoe') {
             ctx.save();
-            ctx.strokeStyle = 'rgba(62, 230, 192, 0.78)';
+            ctx.strokeStyle = 'rgba(62, 230, 192, 0.55)';
             ctx.lineWidth = 1;
             ctx.setLineDash([3, 4]);
-            ctx.beginPath();
-            ctx.arc(tx, ty, 17, 0, Math.PI * 2);
+            roundRect(ctx, g.px - 4, g.py - 4, g.pw + 8, g.ph + 8, 10);
             ctx.stroke();
             ctx.restore();
         }
+
+        ctx.restore();
     }
 
     function drawTokens(ctx) {
-        var tx = roadW * 0.93;
-        var ty = roadH * 0.10;
+        var target = brainTarget();
+        var tx = target.x;
+        var ty = target.y;
 
         state.tokens.forEach(function (token) {
             var t = clamp((token.age - token.delay) / Math.max(0.001, 1 - token.delay), 0, 1);
@@ -1050,7 +1163,7 @@
         drawRoad(ctx);
         drawStreetlights(ctx, top, bottom);
         drawRoute(ctx);
-        drawUplink(ctx);
+        drawBrain(ctx);
         drawCar(ctx);
 
         if (state.spotlight === 'autoware') {
@@ -1347,6 +1460,7 @@
         state.policy = 'rtmoe';
         state.instruction = 'cruise';
         state.residents = [];
+        state.selected = [];
         state.lastUsed = new Array(EXPERTS).fill(-1);
         state.usage = new Array(EXPERTS).fill(0);
         state.latencies = [];
