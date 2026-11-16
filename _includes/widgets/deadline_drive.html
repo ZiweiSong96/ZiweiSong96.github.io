@@ -1,0 +1,97 @@
+<section class="card lab-card" id="deadline-drive" aria-labelledby="dd-title">
+    <div class="card-body">
+        <header class="lab-header">
+            <div class="lab-heading">
+                <p class="eyebrow">// interactive lab</p>
+                <h2 id="dd-title">Deadline Drive</h2>
+                <p class="lab-sub">
+                    An autonomous car runs an MoE brain on a fixed memory budget.
+                    Keep the control loop on time.
+                </p>
+            </div>
+            <div class="lab-status">
+                <span id="dd-status" class="dd-status is-warm" role="status" aria-live="polite">WARMING UP</span>
+                <button id="dd-play" class="dd-ghost-btn" type="button" aria-label="Pause simulation">
+                    <i class="fas fa-pause" aria-hidden="true"></i> Pause
+                </button>
+                <button id="dd-reset" class="dd-ghost-btn" type="button" aria-label="Reset simulation">
+                    <i class="fas fa-rotate-left" aria-hidden="true"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="dd-grid">
+            <div class="dd-stage-wrap">
+                <canvas id="dd-road" role="img" aria-label="Top-down night road with an autonomous car sending tokens to a mixture-of-experts model."></canvas>
+                <div class="dd-stage-caption" aria-hidden="true">
+                    <span>AV · Autoware.Flex</span>
+                    <span id="dd-instr-label">Cruise</span>
+                </div>
+            </div>
+
+            <div class="dd-brain">
+                <div class="dd-panel-head">
+                    <span>Expert rack</span>
+                    <span id="dd-mem-label">4 / 8 in memory</span>
+                </div>
+                <div id="dd-rack" class="dd-rack" aria-label="Expert memory slots"></div>
+
+                <div class="dd-panel-head dd-chart-head">
+                    <span>Control latency</span>
+                    <span id="dd-p99-inline">p99 —</span>
+                </div>
+                <canvas id="dd-chart" role="img" aria-label="Rolling latency bars with the current control deadline."></canvas>
+            </div>
+        </div>
+
+        <div class="dd-instructions" role="group" aria-label="Human instruction">
+            <span class="dd-label">Instruction</span>
+            <button class="dd-chip is-active" data-instruction="cruise" aria-pressed="true" type="button">Cruise</button>
+            <button class="dd-chip" data-instruction="exit" aria-pressed="false" type="button">Take exit</button>
+            <button class="dd-chip" data-instruction="avoid" aria-pressed="false" type="button">Avoid cyclist</button>
+            <button class="dd-chip" data-instruction="pull" aria-pressed="false" type="button">Pull over</button>
+        </div>
+
+        <div class="dd-controls">
+            <label class="dd-control">
+                <span>Memory <output id="dd-memory-out">4 experts</output></span>
+                <input id="dd-memory" type="range" min="2" max="8" step="1" value="4">
+            </label>
+            <label class="dd-control">
+                <span>Deadline <output id="dd-deadline-out">50 ms</output></span>
+                <input id="dd-deadline" type="range" min="20" max="80" step="5" value="50">
+            </label>
+            <label class="dd-control">
+                <span>Workload <output id="dd-workload-out">6 tokens</output></span>
+                <input id="dd-workload" type="range" min="3" max="12" step="1" value="6">
+            </label>
+            <div class="dd-policy" role="group" aria-label="Eviction policy">
+                <span class="dd-label">Policy</span>
+                <button class="dd-seg" data-policy="lru" aria-pressed="false" type="button">LRU</button>
+                <button class="dd-seg is-active" data-policy="rtmoe" aria-pressed="true" type="button">RT-MoE</button>
+            </div>
+        </div>
+
+        <div class="dd-metrics">
+            <span><em>p99</em><b id="dd-m-p99">—</b></span>
+            <span><em>deadline miss</em><b id="dd-m-miss">—</b></span>
+            <span><em>expert hit</em><b id="dd-m-hit">—</b></span>
+            <span><em>batch</em><b id="dd-m-batch">—</b></span>
+        </div>
+
+        <details class="dd-why">
+            <summary>What am I looking at?</summary>
+            <p>
+                Each control tick sends a batch of tokens from the car to a mixture-of-experts model.
+                Only a few experts fit in memory; loading an absent expert adds latency. If the total
+                exceeds the control deadline, the car hesitates.
+            </p>
+            <p>
+                Inspired by
+                <a href="https://doi.org/10.1109/RTCSA66114.2025.00011" target="_blank" rel="noopener">Autoware.Flex (RTCSA 2025)</a>
+                and <a href="{{ '/publications/' | relative_url }}">RT-MoE (RTSS 2026)</a>.
+                This is an illustrative simulation, not a benchmark.
+            </p>
+        </details>
+    </div>
+</section>

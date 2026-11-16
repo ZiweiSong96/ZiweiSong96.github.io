@@ -6,6 +6,7 @@ description: >-
   Ziwei Song is a Ph.D. student in Computer Science at City University of Hong
   Kong, working on real-time AI systems, autonomous driving, and
   mixture-of-experts inference.
+show_deadline_drive: true
 redirect_from:
   - /about/
   - /about.html
@@ -20,6 +21,8 @@ redirect_from:
     <div class="col-lg-9 col-md-8">
 
         {% include widgets/profile_card_bio_only.html %}
+
+        {% include widgets/deadline_drive.html %}
 
         {% if site.data.display.homepage.show_experience %}
             {% include widgets/experience_card.html %}

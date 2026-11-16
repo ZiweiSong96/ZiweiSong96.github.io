@@ -21,6 +21,22 @@ Bootstrap 4) with a custom dark technical theme.
 | `assets/js/site.js` | Scroll progress, card reveal, portrait shrink |
 | `assets/images/` | Portrait, favicon, social share card |
 
+## Interactive lab — Deadline Drive
+
+The homepage includes a small interactive simulation of an autonomous car running
+an MoE model under a memory budget and a control deadline.
+
+| File | Purpose |
+| --- | --- |
+| `_includes/widgets/deadline_drive.html` | Markup and controls |
+| `assets/css/deadline-drive.css` | Lab card styling |
+| `assets/js/deadline-drive.js` | Simulation, road canvas, expert rack, latency chart |
+
+It is loaded only on pages with `show_deadline_drive: true` in the front matter
+(currently `index.html`). Tune the scenario weights, load cost and defaults in the
+`INSTRUCTIONS` / `state` objects at the top of the JS file. The simulation is
+illustrative, not a benchmark.
+
 ## Editing content
 
 - **Profile / bio / education / awards**: `_data/profile.yml`

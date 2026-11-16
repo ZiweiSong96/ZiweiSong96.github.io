@@ -56,6 +56,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ '/assets/css/global.css' | relative_url }}">
+    {% if page.show_deadline_drive %}
+    <link rel="stylesheet" href="{{ '/assets/css/deadline-drive.css' | relative_url }}">
+    {% endif %}
 </head>
 <body class="bg-light d-flex flex-column min-vh-100" {{ page.body_attr }}>
     {% include navbar.html %}
@@ -72,5 +75,8 @@
     <script src="{{ '/assets/js/bubble_visual_hash.js' | relative_url }}"></script>
     <script src="{{ '/assets/js/common.js' | relative_url }}"></script>
     <script src="{{ '/assets/js/site.js' | relative_url }}"></script>
+    {% if page.show_deadline_drive %}
+    <script src="{{ '/assets/js/deadline-drive.js' | relative_url }}"></script>
+    {% endif %}
 </body>
 </html>
