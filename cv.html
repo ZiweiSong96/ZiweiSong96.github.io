@@ -18,6 +18,16 @@ description: Curriculum vitae of Ziwei Song — education, experience, honors, a
     </p>
 </div>
 
+{% assign profile = site.data.profile %}
+<div class="cv-section">
+    <h2 class="year-heading">Research Interests</h2>
+    <div class="interest-tags">
+        {% for topic in profile.research_interests %}
+        <span class="interest-tag">{{ topic }}</span>
+        {% endfor %}
+    </div>
+</div>
+
 {% include widgets/experience_card.html %}
 
 {% assign pubs_by_year = site.publications | sort: "date" | reverse | group_by_exp: "item", "item.date | date: '%Y'" %}
