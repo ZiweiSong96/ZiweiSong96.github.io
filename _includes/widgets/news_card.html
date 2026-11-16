@@ -1,7 +1,7 @@
 {% assign news_by_year = site.news | sort: "date" | reverse | slice: 0, include.limit | group_by_exp: "item", "item.date | date: '%Y'" -%}
 
 <div class="card news-card">
-    <div class="card-body p-0">
+    <div class="card-body">
         <h6 class="section-label news-heading"><i class="fas fa-satellite-dish" aria-hidden="true"></i> News</h6>
         <div class="news-list">
             {% for year in news_by_year %}
