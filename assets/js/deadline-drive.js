@@ -23,6 +23,13 @@
     var memoryOut = root.querySelector('#dd-memory-out');
     var deadlineOut = root.querySelector('#dd-deadline-out');
     var workloadOut = root.querySelector('#dd-workload-out');
+    var paperPop = root.querySelector('#dd-paper-pop');
+    var paperTopic = paperPop ? paperPop.querySelector('.dd-paper-topic') : null;
+    var paperTitle = paperPop ? paperPop.querySelector('.dd-paper-title') : null;
+    var paperMeta = paperPop ? paperPop.querySelector('.dd-paper-meta') : null;
+    var paperDesc = paperPop ? paperPop.querySelector('.dd-paper-desc') : null;
+    var paperLink = paperPop ? paperPop.querySelector('.dd-paper-link') : null;
+    var paperClose = root.querySelector('#dd-paper-close');
 
     if (!roadCanvas || !chartCanvas || !rackEl) return;
 
@@ -66,6 +73,57 @@
         }
     };
 
+    var PAPERS = {
+        autoware: {
+            topic: 'Human-instructed autonomy',
+            title: 'Autoware.Flex: Human-Instructed Dynamically Reconfigurable Autonomous Driving Systems',
+            meta: 'RTCSA 2025 · Conference',
+            desc: 'Reconfigures the driving stack from a human instruction while keeping the control loop safe.',
+            href: 'https://doi.org/10.1109/RTCSA66114.2025.00011'
+        },
+        rtmoe: {
+            topic: 'Real-time MoE inference',
+            title: 'RT-MoE: Real-Time Expert Management for Memory-Constrained MoE Decoding',
+            meta: 'RTSS 2026 · Accepted',
+            desc: 'Keeps the right experts resident under a tight memory budget so decoding stays within its deadline.',
+            href: '/publications/#year-2026'
+        },
+        latency: {
+            topic: 'Probabilistic latency',
+            title: 'Latency analysis for real-time MoE inference',
+            meta: 'RTAS · Under review',
+            desc: 'Models the tail of the inference-latency distribution and the risk of missing a control deadline.',
+            href: null
+        },
+        tii: {
+            topic: 'DNN security',
+            title: 'Layer-Wise Security Protection for Deep Neural Networks in Industrial Cyber Physical Systems',
+            meta: 'IEEE TII 2022 · Journal',
+            desc: 'Layer-wise security protection for DNNs deployed in industrial cyber-physical systems.',
+            href: '/publications/#year-2022'
+        },
+        jsa: {
+            topic: 'Accelerator co-scheduling',
+            title: 'Optimized Co-scheduling of Mixed-precision Neural Network Accelerator for Real-time Multitasking Applications',
+            meta: 'JSA 2020 · Journal',
+            desc: 'Co-schedules mixed-precision neural network accelerators for real-time multitasking workloads.',
+            href: '/publications/#year-2020'
+        },
+        codes: {
+            topic: 'DNN IP protection',
+            title: 'Critical-Weight Based Locking Scheme for DNN IP Protection in Edge Computing',
+            meta: 'CODES+ISSS 2021 · WIP',
+            desc: 'Critical-weight-based locking to protect DNN intellectual property on edge devices.',
+            href: '/publications/#year-2021'
+        }
+    };
+
+    var PAPER_TARGETS = {
+        autoware: '.dd-stage-wrap',
+        rtmoe: '#dd-rack',
+        latency: '#dd-chart'
+    };
+
     var state = {
         running: true,
         visible: true,
@@ -90,6 +148,7 @@
         targetLane: 1,
         flash: 0,
         toast: null,
+        spotlight: null,
         rng: mulberry32(20261116),
         accum: 0,
         lastFrame: 0
@@ -104,6 +163,10 @@
     var buildingsTop = [];
     var buildingsBottom = [];
     var rafId = null;
+    var activePaper = null;
+    var pinnedPaper = null;
+    var activeAnchor = null;
+    var paperHideTimer = 0;
 
     function mulberry32(seed) {
         var a = seed >>> 0;
@@ -801,6 +864,17 @@
         ctx.fillStyle = 'rgba(62, 230, 192, 0.8)';
         ctx.font = '6px "JetBrains Mono", ui-monospace, monospace';
         ctx.fillText('MoE', tx - 8, ty + 3);
+
+        if (state.spotlight === 'rtmoe') {
+            ctx.save();
+            ctx.strokeStyle = 'rgba(62, 230, 192, 0.78)';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([3, 4]);
+            ctx.beginPath();
+            ctx.arc(tx, ty, 17, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.restore();
+        }
     }
 
     function drawTokens(ctx) {
@@ -878,6 +952,19 @@
         drawRoute(ctx);
         drawUplink(ctx);
         drawCar(ctx);
+
+        if (state.spotlight === 'autoware') {
+            var ringScale = clamp(roadW / 700, 0.78, 1.05);
+            ctx.save();
+            ctx.strokeStyle = 'rgba(62, 230, 192, 0.78)';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([3, 4]);
+            ctx.beginPath();
+            ctx.arc(carX(), state.carY || laneY(1), 38 * ringScale, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.restore();
+        }
+
         drawTokens(ctx);
         drawToast(ctx, now);
 
@@ -896,6 +983,161 @@
                 ctx.textAlign = 'left';
             }
         }
+    }
+
+    function renderPaper(key) {
+        var paper = PAPERS[key];
+        if (!paper || !paperPop) return;
+        paperTopic.textContent = paper.topic;
+        paperTitle.textContent = paper.title;
+        paperMeta.textContent = paper.meta;
+        paperDesc.textContent = paper.desc;
+        if (paper.href) {
+            paperLink.hidden = false;
+            paperLink.href = paper.href;
+            paperLink.target = paper.href.indexOf('http') === 0 ? '_blank' : '_self';
+        } else {
+            paperLink.hidden = true;
+            paperLink.removeAttribute('href');
+        }
+    }
+
+    function setPaperSpotlight(key) {
+        Object.keys(PAPER_TARGETS).forEach(function (paperKey) {
+            var target = root.querySelector(PAPER_TARGETS[paperKey]);
+            if (target) target.classList.toggle('is-spotlit', paperKey === key);
+        });
+        state.spotlight = key;
+        drawScene(performance.now());
+    }
+
+    function positionPaper(anchor) {
+        if (!paperPop) return;
+        var cardRect = root.getBoundingClientRect();
+        var stage = root.querySelector('.dd-stage-wrap');
+        var stageRect = stage ? stage.getBoundingClientRect() : cardRect;
+        var popWidth = paperPop.offsetWidth || 330;
+        var popHeight = paperPop.offsetHeight || 180;
+        var maxLeft = Math.max(12, cardRect.width - popWidth - 12);
+        var left = clamp(stageRect.left - cardRect.left + 12, 12, maxLeft);
+        var top = stageRect.top - cardRect.top + 12;
+
+        top = clamp(top, 12, Math.max(12, cardRect.height - popHeight - 12));
+
+        paperPop.style.left = Math.round(left) + 'px';
+        paperPop.style.top = Math.round(top) + 'px';
+    }
+
+    function showPaper(key, anchor, pin) {
+        if (!paperPop || !PAPERS[key]) return;
+        window.clearTimeout(paperHideTimer);
+        activePaper = key;
+        activeAnchor = anchor;
+        pinnedPaper = pin ? key : pinnedPaper;
+        renderPaper(key);
+        paperPop.hidden = false;
+        paperPop.classList.toggle('is-pinned', !!pin);
+        positionPaper(anchor);
+        setPaperSpotlight(key);
+        root.querySelectorAll('[data-paper]').forEach(function (button) {
+            button.setAttribute('aria-expanded', button === anchor ? 'true' : 'false');
+        });
+    }
+
+    function hidePaper(force) {
+        if (!paperPop) return;
+        window.clearTimeout(paperHideTimer);
+        if (pinnedPaper && !force) return;
+        paperPop.hidden = true;
+        paperPop.classList.remove('is-pinned');
+        activePaper = null;
+        activeAnchor = null;
+        pinnedPaper = null;
+        setPaperSpotlight(null);
+        root.querySelectorAll('[data-paper]').forEach(function (button) {
+            button.setAttribute('aria-expanded', 'false');
+        });
+    }
+
+    function bindPaperEvents() {
+        root.querySelectorAll('[data-paper]').forEach(function (button) {
+            var key = button.getAttribute('data-paper');
+
+            button.addEventListener('pointerenter', function (event) {
+                if (event.pointerType !== 'mouse') return;
+                window.clearTimeout(paperHideTimer);
+                if (!pinnedPaper) showPaper(key, button, false);
+            });
+
+            button.addEventListener('pointerleave', function (event) {
+                if (event.pointerType !== 'mouse') return;
+                if (!pinnedPaper) {
+                    paperHideTimer = window.setTimeout(function () { hidePaper(false); }, 160);
+                }
+            });
+
+            button.addEventListener('focus', function () {
+                var focusVisible = true;
+                try { focusVisible = button.matches(':focus-visible'); } catch (error) { focusVisible = true; }
+                if (focusVisible && !pinnedPaper) showPaper(key, button, false);
+            });
+
+            button.addEventListener('blur', function () {
+                if (!pinnedPaper) {
+                    paperHideTimer = window.setTimeout(function () { hidePaper(false); }, 160);
+                }
+            });
+
+            button.addEventListener('click', function (event) {
+                event.stopPropagation();
+                if (pinnedPaper === key && !paperPop.hidden) {
+                    hidePaper(true);
+                } else {
+                    showPaper(key, button, true);
+                }
+            });
+        });
+
+        if (paperPop) {
+            paperPop.addEventListener('mouseenter', function () {
+                window.clearTimeout(paperHideTimer);
+            });
+
+            paperPop.addEventListener('mouseleave', function () {
+                if (!pinnedPaper) {
+                    paperHideTimer = window.setTimeout(function () { hidePaper(false); }, 180);
+                }
+            });
+
+            paperPop.addEventListener('focusin', function () {
+                window.clearTimeout(paperHideTimer);
+            });
+
+            paperPop.addEventListener('click', function (event) {
+                event.stopPropagation();
+            });
+        }
+
+        if (paperClose) {
+            paperClose.addEventListener('click', function () {
+                hidePaper(true);
+            });
+        }
+
+        document.addEventListener('click', function (event) {
+            if (!paperPop || paperPop.hidden) return;
+            if (paperPop.contains(event.target)) return;
+            if (root.contains(event.target) && event.target.closest('[data-paper]')) return;
+            hidePaper(true);
+        });
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') hidePaper(true);
+        });
+
+        window.addEventListener('resize', function () {
+            if (paperPop && !paperPop.hidden && activeAnchor) positionPaper(activeAnchor);
+        });
     }
 
     function resize() {
@@ -926,6 +1168,9 @@
         state.carY = laneY(state.targetLane);
         drawChart();
         drawScene(performance.now());
+        if (paperPop && !paperPop.hidden && activeAnchor) {
+            positionPaper(activeAnchor);
+        }
     }
 
     function setInstruction(key, quiet) {
@@ -1036,6 +1281,7 @@
         updateStatus(true);
         drawChart();
         drawScene(performance.now());
+        hidePaper(true);
     }
 
     function bindEvents() {
@@ -1130,6 +1376,7 @@
 
     buildRack();
     bindEvents();
+    bindPaperEvents();
     resize();
     resetState();
     rafId = window.requestAnimationFrame(frame);

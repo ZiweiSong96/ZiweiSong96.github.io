@@ -37,6 +37,10 @@ It is loaded only on pages with `show_deadline_drive: true` in the front matter
 `INSTRUCTIONS` / `state` objects at the top of the JS file. The simulation is
 illustrative, not a benchmark.
 
+The car, expert rack and latency chart are paper hotspots: hover or tap them (and
+the `Earlier work` chips) to open the publication card. Paper metadata lives in
+the `PAPERS` object in `assets/js/deadline-drive.js`.
+
 ## Editing content
 
 - **Profile / bio / education / awards**: `_data/profile.yml`

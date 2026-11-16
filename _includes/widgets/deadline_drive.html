@@ -23,26 +23,31 @@
         <div class="dd-grid">
             <div class="dd-stage-wrap">
                 <canvas id="dd-road" role="img" aria-label="Top-down night road with an autonomous car sending tokens to a mixture-of-experts model."></canvas>
-                <div class="dd-stage-caption" aria-hidden="true">
-                    <span>AV · Autoware.Flex</span>
+                <div class="dd-stage-caption">
+                    <button type="button" class="dd-hotspot" data-paper="autoware" aria-expanded="false" aria-controls="dd-paper-pop">AV · Autoware.Flex</button>
                     <span id="dd-instr-label">Cruise</span>
                 </div>
             </div>
 
             <div class="dd-brain">
                 <div class="dd-panel-head">
-                    <span>Expert rack</span>
+                    <button type="button" class="dd-hotspot" data-paper="rtmoe" aria-expanded="false" aria-controls="dd-paper-pop">Expert rack</button>
                     <span id="dd-mem-label">4 / 8 in memory</span>
                 </div>
                 <div id="dd-rack" class="dd-rack" aria-label="Expert memory slots"></div>
 
                 <div class="dd-panel-head dd-chart-head">
-                    <span>Control latency</span>
+                    <button type="button" class="dd-hotspot" data-paper="latency" aria-expanded="false" aria-controls="dd-paper-pop">Control latency</button>
                     <span id="dd-p99-inline">p99 —</span>
                 </div>
                 <canvas id="dd-chart" role="img" aria-label="Rolling latency bars with the current control deadline."></canvas>
             </div>
         </div>
+
+        <p class="dd-hot-hint">
+            <i class="fas fa-hand-pointer" aria-hidden="true"></i>
+            Hover or tap the underlined labels to see the paper behind each part.
+        </p>
 
         <div class="dd-instructions" role="group" aria-label="Human instruction">
             <span class="dd-label">Instruction</span>
@@ -79,6 +84,13 @@
             <span><em>batch</em><b id="dd-m-batch">—</b></span>
         </div>
 
+        <div class="dd-papers-strip" aria-label="Earlier publications">
+            <span class="dd-label">Earlier work</span>
+            <button class="dd-paper-chip" type="button" data-paper="tii" aria-expanded="false" aria-controls="dd-paper-pop">TII'22 · DNN security</button>
+            <button class="dd-paper-chip" type="button" data-paper="jsa" aria-expanded="false" aria-controls="dd-paper-pop">JSA'20 · Co-scheduling</button>
+            <button class="dd-paper-chip" type="button" data-paper="codes" aria-expanded="false" aria-controls="dd-paper-pop">CODES+ISSS'21 · IP locking</button>
+        </div>
+
         <p class="dd-try">
             Try <strong>Avoid cyclist</strong> with <strong>2 experts</strong> at <strong>30 ms</strong> —
             or switch to <strong>LRU</strong> and watch the tail.
@@ -102,5 +114,16 @@
                 This is an illustrative simulation, not a benchmark.
             </p>
         </details>
+    </div>
+
+    <div id="dd-paper-pop" class="dd-paper-pop" role="region" aria-label="Publication details" aria-live="polite" hidden>
+        <button id="dd-paper-close" class="dd-paper-close" type="button" aria-label="Close publication details">
+            <i class="fas fa-xmark" aria-hidden="true"></i>
+        </button>
+        <p class="dd-paper-topic"></p>
+        <h4 class="dd-paper-title"></h4>
+        <p class="dd-paper-meta"></p>
+        <p class="dd-paper-desc"></p>
+        <a class="dd-paper-link" href="#" target="_blank" rel="noopener">View publication <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
     </div>
 </section>
