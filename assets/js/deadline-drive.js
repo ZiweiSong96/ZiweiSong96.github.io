@@ -959,29 +959,46 @@
     }
 
     function brainGeometry() {
-        var rx = clamp(roadW * 0.15, 46, 62);
-        var ry = clamp(roadH * 0.15, 27, 38);
+        var cw = clamp(roadW * 0.40, 150, 190);
+        var ch = clamp(roadH * 0.36, 78, 98);
+        var cx = roadW - cw - 10;
+        var cy = 8;
         return {
-            rx: rx,
-            ry: ry,
-            cx: roadW - rx - 22,
-            cy: Math.max(ry + 18, roadH * 0.22)
+            cw: cw,
+            ch: ch,
+            cx: cx,
+            cy: cy,
+            inputX: cx + 1,
+            inputY: cy + ch * 0.60,
+            routerX: cx + cw * 0.52,
+            routerY: cy + ch * 0.55,
+            stackX: cx + 12,
+            stackY: cy + 24,
+            stackW: cw * 0.26,
+            expertX: cx + cw * 0.80,
+            expertY: cy + 22,
+            expertGap: (ch - 34) / 8
         };
     }
 
     function brainTarget() {
         var geometry = brainGeometry();
-        return { x: geometry.cx, y: geometry.cy };
+        return { x: geometry.inputX, y: geometry.inputY };
     }
 
     function drawBrain(ctx) {
         var g = brainGeometry();
         var cx = g.cx;
         var cy = g.cy;
-        var rx = g.rx;
-        var ry = g.ry;
+        var cw = g.cw;
+        var ch = g.ch;
         var carCX = carX();
         var carCY = state.carY || laneY(1);
+        var now = performance.now();
+        var compact = ch < 84;
+        var blockGap = compact ? 11 : 14;
+        var blockH = compact ? 7 : 9;
+        var blockCount = 3;
 
         ctx.save();
         ctx.strokeStyle = 'rgba(62, 230, 192, 0.22)';
@@ -990,127 +1007,173 @@
         ctx.lineDashOffset = -state.roadOffset * 0.4;
         ctx.beginPath();
         ctx.moveTo(carCX + 18, carCY);
-        ctx.lineTo(cx, cy);
+        ctx.lineTo(g.inputX, g.inputY);
         ctx.stroke();
         ctx.restore();
 
-        var halo = ctx.createRadialGradient(cx, cy, 2, cx, cy, rx + 38);
-        halo.addColorStop(0, 'rgba(62, 230, 192, 0.12)');
-        halo.addColorStop(0.55, 'rgba(62, 230, 192, 0.04)');
-        halo.addColorStop(1, 'rgba(62, 230, 192, 0)');
-        ctx.fillStyle = halo;
-        ctx.beginPath();
-        ctx.ellipse(cx, cy, rx + 38, ry + 32, 0, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.fillStyle = 'rgba(242, 184, 107, 0.35)';
+        var pins = 7;
+        for (var p = 1; p < pins; p += 1) {
+            var pinX = cx + (cw / pins) * p;
+            ctx.fillRect(pinX - 1, cy - 4, 3, 3);
+            ctx.fillRect(pinX - 1, cy + ch + 1, 3, 3);
+        }
 
         ctx.save();
-        ctx.strokeStyle = 'rgba(62, 230, 192, 0.12)';
+        ctx.shadowColor = 'rgba(62, 230, 192, 0.14)';
+        ctx.shadowBlur = 18;
+        ctx.fillStyle = 'rgba(8, 13, 20, 0.93)';
+        ctx.strokeStyle = state.spotlight === 'rtmoe' ? 'rgba(62, 230, 192, 0.8)' : 'rgba(62, 230, 192, 0.45)';
         ctx.lineWidth = 1;
-        ctx.setLineDash([3, 7]);
-        ctx.beginPath();
-        ctx.ellipse(cx, cy, rx + 10, ry + 10, 0, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.ellipse(cx, cy, rx + 20, ry + 20, 0, 0, Math.PI * 2);
+        roundRect(ctx, cx, cy, cw, ch, 9);
+        ctx.fill();
         ctx.stroke();
         ctx.restore();
 
-        var nodes = [];
-        for (var i = 0; i < EXPERTS; i += 1) {
-            var angle = -Math.PI / 2 + i * (Math.PI / 4);
-            nodes.push({
-                angle: angle,
-                x: cx + Math.cos(angle) * rx,
-                y: cy + Math.sin(angle) * ry,
-                resident: state.residents.indexOf(i) !== -1,
-                selected: state.selected.indexOf(i) !== -1
-            });
-        }
-
-        nodes.forEach(function (node, index) {
-            var fromX = cx + Math.cos(node.angle) * 11;
-            var fromY = cy + Math.sin(node.angle) * 11;
-            ctx.strokeStyle = node.selected
-                ? 'rgba(255, 255, 255, 0.72)'
-                : (node.resident ? COLORS[index] : 'rgba(255, 255, 255, 0.1)');
-            ctx.globalAlpha = node.selected ? 0.9 : (node.resident ? 0.38 : 0.16);
-            ctx.lineWidth = node.selected ? 1.4 : 1;
-            ctx.beginPath();
-            ctx.moveTo(fromX, fromY);
-            ctx.lineTo(node.x, node.y);
-            ctx.stroke();
-            ctx.globalAlpha = 1;
-        });
-
-        var now = performance.now();
-        nodes.forEach(function (node, index) {
-            var pulse = reduceMotion.matches ? 0.55 : 0.5 + 0.5 * Math.sin(now / 420 + index * 0.9);
-            if (node.selected) {
-                ctx.fillStyle = 'rgba(62, 230, 192, ' + (0.08 + pulse * 0.12).toFixed(3) + ')';
-                ctx.beginPath();
-                ctx.arc(node.x, node.y, 8 + pulse * 4, 0, Math.PI * 2);
-                ctx.fill();
-            }
-
-            ctx.fillStyle = node.resident ? COLORS[index] : 'rgba(255, 255, 255, 0.07)';
-            ctx.globalAlpha = node.resident ? 0.92 : 0.55;
-            ctx.beginPath();
-            ctx.arc(node.x, node.y, 4.5, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.globalAlpha = 1;
-
-            ctx.strokeStyle = node.selected ? 'rgba(255, 255, 255, 0.95)' : 'rgba(255, 255, 255, 0.16)';
-            ctx.lineWidth = node.selected ? 1.2 : 0.8;
-            ctx.beginPath();
-            ctx.arc(node.x, node.y, 4.5, 0, Math.PI * 2);
-            ctx.stroke();
-        });
-
-        var coreGlow = ctx.createRadialGradient(cx, cy, 0, cx, cy, 26);
-        coreGlow.addColorStop(0, 'rgba(62, 230, 192, 0.22)');
-        coreGlow.addColorStop(1, 'rgba(62, 230, 192, 0)');
-        ctx.fillStyle = coreGlow;
-        ctx.beginPath();
-        ctx.arc(cx, cy, 26, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.beginPath();
-        for (var k = 0; k < 6; k += 1) {
-            var coreAngle = -Math.PI / 2 + k * (Math.PI / 3);
-            var px = cx + Math.cos(coreAngle) * 12;
-            var py = cy + Math.sin(coreAngle) * 12;
-            if (k === 0) ctx.moveTo(px, py);
-            else ctx.lineTo(px, py);
-        }
-        ctx.closePath();
-        ctx.fillStyle = 'rgba(7, 11, 16, 0.94)';
-        ctx.strokeStyle = 'rgba(62, 230, 192, 0.75)';
-        ctx.lineWidth = 1.2;
-        ctx.fill();
+        ctx.strokeStyle = 'rgba(62, 230, 192, 0.14)';
+        ctx.lineWidth = 1;
+        roundRect(ctx, cx + 4, cy + 4, cw - 8, ch - 8, 6);
         ctx.stroke();
 
+        ctx.fillStyle = 'rgba(7, 11, 16, 0.95)';
+        ctx.strokeStyle = 'rgba(62, 230, 192, 0.4)';
         ctx.beginPath();
-        ctx.arc(cx, cy, 8, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(62, 230, 192, 0.28)';
-        ctx.lineWidth = 1;
+        ctx.arc(cx + 9, cy + 9, 3, 0, Math.PI * 2);
+        ctx.fill();
         ctx.stroke();
 
         ctx.fillStyle = 'rgba(62, 230, 192, 0.95)';
-        ctx.font = '8px "JetBrains Mono", ui-monospace, monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText('MoE', cx, cy + 3);
-        ctx.fillStyle = 'rgba(174, 191, 210, 0.75)';
+        ctx.font = '9px "JetBrains Mono", ui-monospace, monospace';
+        ctx.fillText('LLM · MoE', cx + 16, cy + 15);
+        ctx.fillStyle = 'rgba(143, 163, 184, 0.8)';
+        ctx.font = '6px "JetBrains Mono", ui-monospace, monospace';
+        ctx.fillText('chip', cx + 70, cy + 15);
+
+        for (var b = 0; b < blockCount; b += 1) {
+            var by = g.stackY + b * blockGap;
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
+            ctx.strokeStyle = 'rgba(62, 230, 192, 0.25)';
+            roundRect(ctx, g.stackX, by, g.stackW, blockH, 2);
+            ctx.fill();
+            ctx.stroke();
+            for (var cell = 0; cell < 3; cell += 1) {
+                ctx.fillStyle = 'rgba(62, 230, 192, ' + (0.15 + cell * 0.08).toFixed(2) + ')';
+                ctx.fillRect(g.stackX + 4 + cell * 9, by + 2, 4, Math.max(2, blockH - 4));
+            }
+        }
+        ctx.fillStyle = 'rgba(143, 163, 184, 0.8)';
+        ctx.font = '6px "JetBrains Mono", ui-monospace, monospace';
+        ctx.fillText('transformer ×3', g.stackX, g.stackY + blockCount * blockGap + 2);
+
+        ctx.strokeStyle = 'rgba(62, 230, 192, 0.35)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(g.stackX + g.stackW, g.stackY + blockH / 2);
+        ctx.lineTo(g.routerX - 9, g.routerY);
+        ctx.stroke();
+
+        ctx.strokeStyle = 'rgba(62, 230, 192, 0.22)';
+        ctx.beginPath();
+        ctx.moveTo(g.inputX + 3, g.inputY);
+        ctx.lineTo(g.stackX, g.stackY + (blockCount - 1) * blockGap + blockH / 2);
+        ctx.stroke();
+
+        var pulse = reduceMotion.matches ? 0.5 : 0.5 + 0.5 * Math.sin(now / 300);
+        ctx.strokeStyle = 'rgba(62, 230, 192, ' + (0.08 + pulse * 0.1).toFixed(3) + ')';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(g.routerX, g.routerY, 14 + pulse * 3, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.beginPath();
+        for (var k = 0; k < 6; k += 1) {
+            var angle = -Math.PI / 2 + k * (Math.PI / 3);
+            var hx = g.routerX + Math.cos(angle) * 10;
+            var hy = g.routerY + Math.sin(angle) * 10;
+            if (k === 0) ctx.moveTo(hx, hy);
+            else ctx.lineTo(hx, hy);
+        }
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(7, 11, 16, 0.96)';
+        ctx.strokeStyle = 'rgba(62, 230, 192, 0.75)';
+        ctx.lineWidth = 1.1;
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(62, 230, 192, 0.95)';
         ctx.font = '7px "JetBrains Mono", ui-monospace, monospace';
-        ctx.fillText('LLM', cx, cy - ry - 12);
+        ctx.textAlign = 'center';
+        ctx.fillText('R', g.routerX, g.routerY + 2.5);
+        ctx.fillStyle = 'rgba(143, 163, 184, 0.8)';
+        ctx.font = '6px "JetBrains Mono", ui-monospace, monospace';
+        ctx.fillText('router', g.routerX, g.routerY - 16);
+        ctx.textAlign = 'left';
+
+        for (var i = 0; i < EXPERTS; i += 1) {
+            var padY = g.expertY + i * g.expertGap;
+            var resident = state.residents.indexOf(i) !== -1;
+            var selected = state.selected.indexOf(i) !== -1;
+
+            ctx.strokeStyle = selected ? 'rgba(255, 255, 255, 0.72)' : (resident ? COLORS[i] : 'rgba(255, 255, 255, 0.1)');
+            ctx.globalAlpha = selected ? 0.9 : (resident ? 0.32 : 0.12);
+            ctx.lineWidth = selected ? 1.3 : 0.8;
+            ctx.beginPath();
+            ctx.moveTo(g.routerX + 8, g.routerY);
+            ctx.bezierCurveTo(g.routerX + 22, g.routerY, g.expertX - 16, padY, g.expertX - 4, padY);
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+
+            if (selected) {
+                ctx.fillStyle = 'rgba(62, 230, 192, ' + (0.08 + pulse * 0.12).toFixed(3) + ')';
+                ctx.beginPath();
+                ctx.arc(g.expertX, padY, 6 + pulse * 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            ctx.fillStyle = resident ? COLORS[i] : 'rgba(255, 255, 255, 0.07)';
+            ctx.globalAlpha = resident ? 0.92 : 0.5;
+            ctx.beginPath();
+            ctx.arc(g.expertX, padY, 3.2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+
+            ctx.strokeStyle = selected ? 'rgba(255, 255, 255, 0.95)' : 'rgba(255, 255, 255, 0.14)';
+            ctx.lineWidth = selected ? 1.2 : 0.7;
+            ctx.beginPath();
+            ctx.arc(g.expertX, padY, 3.2, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+
+        ctx.fillStyle = 'rgba(143, 163, 184, 0.8)';
+        ctx.font = '6px "JetBrains Mono", ui-monospace, monospace';
+        ctx.textAlign = 'right';
+        ctx.fillText('experts', g.expertX + 6, g.expertY - 5);
+        ctx.textAlign = 'left';
+
+        ctx.fillStyle = 'rgba(242, 184, 107, 0.8)';
+        ctx.beginPath();
+        ctx.arc(cx + 8, cy + ch - 8, 2.4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = 'rgba(242, 184, 107, 0.7)';
+        ctx.font = '6px "JetBrains Mono", ui-monospace, monospace';
+        ctx.fillText('action', cx + 14, cy + ch - 6);
+
+        ctx.fillStyle = 'rgba(62, 230, 192, 0.9)';
+        ctx.beginPath();
+        ctx.arc(g.inputX + 2, g.inputY, 2.4, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = 'rgba(62, 230, 192, 0.85)';
+        ctx.font = '6px "JetBrains Mono", ui-monospace, monospace';
+        ctx.textAlign = 'right';
+        ctx.fillText('tokens', g.inputX - 4, g.inputY - 5);
         ctx.textAlign = 'left';
 
         if (state.spotlight === 'rtmoe') {
             ctx.save();
-            ctx.strokeStyle = 'rgba(62, 230, 192, 0.6)';
+            ctx.strokeStyle = 'rgba(62, 230, 192, 0.55)';
             ctx.lineWidth = 1;
             ctx.setLineDash([3, 4]);
-            ctx.beginPath();
-            ctx.ellipse(cx, cy, rx + 24, ry + 24, 0, 0, Math.PI * 2);
+            roundRect(ctx, cx - 6, cy - 6, cw + 12, ch + 12, 11);
             ctx.stroke();
             ctx.restore();
         }
