@@ -1014,13 +1014,25 @@
     function positionPaper(anchor) {
         if (!paperPop) return;
         var cardRect = root.getBoundingClientRect();
-        var stage = root.querySelector('.dd-stage-wrap');
-        var stageRect = stage ? stage.getBoundingClientRect() : cardRect;
         var popWidth = paperPop.offsetWidth || 330;
         var popHeight = paperPop.offsetHeight || 180;
         var maxLeft = Math.max(12, cardRect.width - popWidth - 12);
-        var left = clamp(stageRect.left - cardRect.left + 12, 12, maxLeft);
-        var top = stageRect.top - cardRect.top + 12;
+        var left;
+        var top;
+
+        if (anchor && anchor.classList.contains('dd-paper-chip')) {
+            var anchorRect = anchor.getBoundingClientRect();
+            left = clamp(anchorRect.left - cardRect.left, 12, maxLeft);
+            top = anchorRect.bottom - cardRect.top + 8;
+            if (top + popHeight > cardRect.height - 12) {
+                top = anchorRect.top - cardRect.top - popHeight - 8;
+            }
+        } else {
+            var stage = root.querySelector('.dd-stage-wrap');
+            var stageRect = stage ? stage.getBoundingClientRect() : cardRect;
+            left = clamp(stageRect.left - cardRect.left + 12, 12, maxLeft);
+            top = stageRect.top - cardRect.top + 12;
+        }
 
         top = clamp(top, 12, Math.max(12, cardRect.height - popHeight - 12));
 
