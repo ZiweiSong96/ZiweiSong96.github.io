@@ -1,0 +1,74 @@
+# Profile data — edit this file to update the sidebar, bio and CV sections.
+
+primary_name: "Ziwei Song"
+navbar_name: "Ziwei Song"
+
+positions:
+  - name: "Ph.D. Student in Computer Science"
+  - name: "City University of Hong Kong"
+    url: "https://www.cs.cityu.edu.hk/"
+
+location: "Hong Kong SAR"
+
+email: "ziweisong5-c@my.cityu.edu.hk"
+github: "ZiweiSong96"
+# gscholar: ""       # Google Scholar ID (the part after `user=`)
+# orcid: ""          # ORCID iD
+# linkedin: ""       # LinkedIn handle
+# twitter: ""        # Twitter/X handle, without the @
+
+cv_link: "/cv/"
+
+portrait_url: "/assets/images/photos/portrait.webp"
+
+research_interests:
+  - "Real-Time Systems"
+  - "Autonomous Driving Systems"
+  - "Edge Intelligence"
+  - "Internet of Things"
+
+short_bio_text_justify: false
+short_bio: >-
+  <p>
+    I am a Ph.D. student in the <a href="https://www.cs.cityu.edu.hk/" target="_blank">Department of Computer Science</a>
+    at <a href="https://www.cityu.edu.hk/" target="_blank">City University of Hong Kong</a>, advised by
+    <a href="https://www.cs.cityu.edu.hk/~nanguan/" target="_blank">Prof. Nan Guan</a>. My research lies in
+    real-time systems, autonomous driving systems, and real-time intelligence on edge and embedded devices.
+  </p>
+  <p>
+    Prior to my Ph.D., I received my B.S. and M.S. degrees in Software Engineering from the
+    <a href="https://www.uestc.edu.cn/" target="_blank">University of Electronic Science and Technology of China</a>
+    in 2019 and 2022.
+  </p>
+
+education:
+  - name: "City University of Hong Kong"
+    dept: "Department of Computer Science"
+    position: "Ph.D. in Computer Science"
+    date: "Jun. 2023 - Present"
+  - name: "University of Electronic Science and Technology of China"
+    dept: "School of Information and Software Engineering"
+    position: "M.S. in Software Engineering"
+    date: "Sep. 2019 - Jun. 2022"
+  - name: "University of Electronic Science and Technology of China"
+    dept: "School of Information and Software Engineering"
+    position: "B.S. in Software Engineering"
+    date: "Sep. 2015 - Jun. 2019"
+
+experience:
+  - name: "Chengdu Taiji Bear Technology Co., Ltd."
+    dept: "FPGA Group"
+    position: "Research Intern"
+    date: "Jul. 2018 - Apr. 2019"
+  - name: "International Technological University"
+    dept: "Embedded System Group"
+    position: "Research Intern"
+    date: "Jul. 2016 - Aug. 2016"
+
+awards:
+  - name: "Outstanding Graduate, Sichuan Province"
+    date: "2022"
+  - name: "Outstanding Graduate, University of Electronic Science and Technology of China"
+    date: "2022"
+  - name: "National Scholarship, Ministry of Education"
+    date: "2021"

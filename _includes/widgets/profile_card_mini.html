@@ -1,0 +1,56 @@
+{% assign profile = site.data.profile %}
+<div class="row sticky-top profile-sticky">
+    <div class="col">
+        <div class="card profile-card">
+            <div class="card-body">
+                {% if profile.portrait_url %}
+                <div class="profile-portrait-wrap">
+                    <img src="{{ profile.portrait_url | relative_url }}" class="profile-portrait" alt="Portrait of {{ profile.primary_name }}">
+                </div>
+                {% endif %}
+
+                <h1 class="profile-name">{{ profile.primary_name }}</h1>
+
+                <div class="profile-positions">
+                    {% for position in profile.positions %}
+                    <div>
+                        {% if position.url %}<a href="{{ position.url }}" target="_blank" rel="noopener">{{ position.name }}</a>{% else %}{{ position.name }}{% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+
+                {% if profile.location %}
+                <div class="profile-location">
+                    <i class="fas fa-location-dot" aria-hidden="true"></i> {{ profile.location }}
+                </div>
+                {% endif %}
+
+                <div class="profile-email">
+                    <a href="mailto:{{ profile.email }}">{{ profile.email }}</a>
+                </div>
+
+                <div class="profile-links" aria-label="Academic and social profiles">
+                    <a href="mailto:{{ profile.email }}" aria-label="Email" title="Email"><i class="fas fa-envelope" aria-hidden="true"></i></a>
+                    {% if profile.gscholar %}
+                    <a href="https://scholar.google.com/citations?user={{ profile.gscholar }}" target="_blank" rel="noopener" aria-label="Google Scholar" title="Google Scholar"><i class="ai ai-google-scholar" aria-hidden="true"></i></a>
+                    {% endif %}
+                    {% if profile.github %}
+                    <a href="https://github.com/{{ profile.github }}" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub"><i class="fab fa-github" aria-hidden="true"></i></a>
+                    {% endif %}
+                    {% if profile.linkedin %}
+                    <a href="https://www.linkedin.com/in/{{ profile.linkedin }}" target="_blank" rel="noopener" aria-label="LinkedIn" title="LinkedIn"><i class="fab fa-linkedin" aria-hidden="true"></i></a>
+                    {% endif %}
+                    {% if profile.orcid %}
+                    <a href="https://orcid.org/{{ profile.orcid }}" target="_blank" rel="noopener" aria-label="ORCID" title="ORCID"><i class="ai ai-orcid" aria-hidden="true"></i></a>
+                    {% endif %}
+                    {% if profile.twitter %}
+                    <a href="https://twitter.com/{{ profile.twitter }}" target="_blank" rel="noopener" aria-label="Twitter" title="Twitter"><i class="fab fa-twitter" aria-hidden="true"></i></a>
+                    {% endif %}
+                    {% if profile.cv_link %}
+                    <a href="{{ profile.cv_link | relative_url }}" aria-label="Curriculum Vitae" title="Curriculum Vitae"><i class="fas fa-file-lines" aria-hidden="true"></i></a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,33 @@
+---
+layout: default
+title: CV
+navbar_title: CV
+permalink: /cv/
+description: Curriculum vitae of Ziwei Song — education, experience, honors, and publications.
+---
+
+<div class="page-header">
+    <p class="eyebrow">// curriculum vitae</p>
+    <h1>Curriculum Vitae</h1>
+    <p class="page-lede">
+        Ph.D. student in Computer Science at City University of Hong Kong.
+        A full CV is available on request.
+    </p>
+</div>
+
+{% include widgets/experience_card.html %}
+
+{% assign pubs_by_year = site.publications | sort: "date" | reverse | group_by_exp: "item", "item.date | date: '%Y'" %}
+<div class="cv-section">
+    <h2 class="year-heading">Publications</h2>
+    {% for year in pubs_by_year %}
+    <h3 class="cv-year">{{ year.name }}</h3>
+    <div class="card publication-card year-card">
+        <div class="card-body p-0">
+            {% for item in year.items %}
+                {% include widgets/publication_item.html item=item hide_bottom_border=forloop.last first=forloop.first last=forloop.last %}
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>

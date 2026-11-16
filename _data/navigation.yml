@@ -1,26 +1,7 @@
-# main links links
-main:
-#  - title: "Home"
-#    url: /home/
-
-  - title: "SUNG TZU WEI's Strange Word"
-    url: /markdown/
-
-  - title: "Publications"
+pages:
+  - name: Home
+    url: /
+  - name: Publications
     url: /publications/
-
-  - title: "About Me"
+  - name: CV
     url: /cv/
-#  - title: "Talks"
-#    url: /talks/    
-
-#  - title: "Teaching"
-#    url: /teaching/    
-    
-#  - title: "Portfolio"
-#    url: /portfolio/
-        
-#  - title: "Blog Posts"
-#    url: /year-archive/
-    
-

@@ -1,0 +1,58 @@
+{% assign item = include.item %}
+<div class="d-none d-lg-block publication-row">
+    <div class="row no-gutters">
+        <div class="col-md-3 col-xl-2 pub-cover-col">
+            <div class="pub-cover">
+                {%- if item.cover -%}
+                <img data-src="{{ item.cover | relative_url }}" alt="{{ item.title }}" class="lazy w-100 rounded-sm" src="{{ '/assets/images/empty_300x200.png' | relative_url }}">
+                {%- else -%}
+                <svg class="bubble-visual-hash w-100 rounded-sm" data-bubble-visual-hash="{{ item.id }}" viewBox="0 0 300 200" aria-hidden="true"></svg>
+                {%- endif -%}
+                {% if item.venue_short %}<span class="pub-badge">{{ item.venue_short }}</span>{% endif %}
+            </div>
+        </div>
+        <div class="col-md-9 col-xl-10 pub-body">
+            <h5 class="pub-title">{{ item.title }}</h5>
+            <p class="pub-authors">{% include widgets/author_list.html authors=item.authors %}</p>
+            <p class="pub-venue">{{ item.pub_pre }}<i>{{ item.pub }}</i>{{ item.pub_post }} <span class="pub-year">{{ item.pub_date }}</span> {{ item.pub_last }}</p>
+            {% if item.abstract %}<p class="pub-abstract">{{ item.abstract }}</p>{% endif %}
+            {% if item.links %}
+            <p class="pub-links">
+                {% for link in item.links %}
+                {% if link[1].url %}
+                <a target="{{ link[1]['target'] }}" href="{{ link[1]['url'] }}">[{{ link[0] }}]</a>
+                {% else %}
+                <a target="_blank" rel="noopener" href="{{ link[1] }}">[{{ link[0] }}]</a>
+                {% endif %}
+                {% endfor %}
+            </p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Mobile layout -->
+<div class="row no-gutters d-lg-none publication-row publication-row-mobile {% if item.cover %}lazy{% endif %}" data-src="{{ item.cover | relative_url }}">
+    <div class="w-100 pub-mobile-body">
+        <div class="d-flex align-items-start flex-column py-3 px-4">
+            <div class="mb-auto"></div>
+            <div class="w-100">
+                <h5 class="pub-title">{{ item.title }}</h5>
+                <p class="pub-authors">{% include widgets/author_list.html authors=item.authors %}</p>
+                <p class="pub-venue">{{ item.pub_pre }}<i>{{ item.pub }}</i>{{ item.pub_post }} <span class="pub-year">{{ item.pub_date }}</span> {{ item.pub_last }}</p>
+                {% if item.abstract %}<p class="pub-abstract">{{ item.abstract }}</p>{% endif %}
+                {% if item.links %}
+                <p class="pub-links">
+                    {% for link in item.links %}
+                    {% if link[1].url %}
+                    <a target="{{ link[1]['target'] }}" href="{{ link[1]['url'] }}">[{{ link[0] }}]</a>
+                    {% else %}
+                    <a target="_blank" rel="noopener" href="{{ link[1] }}">[{{ link[0] }}]</a>
+                    {% endif %}
+                    {% endfor %}
+                </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>

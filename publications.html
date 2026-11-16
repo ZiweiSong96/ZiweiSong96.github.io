@@ -1,0 +1,43 @@
+---
+layout: default
+title: Publications
+navbar_title: Publications
+permalink: /publications/
+description: Publications by Ziwei Song on real-time systems, edge intelligence, and hardware security.
+body_attr: >-
+  data-spy="scroll" data-target="#navbar-year" data-offset="140"
+---
+
+{% assign pubs_by_year = site.publications | sort: "date" | reverse | group_by_exp: "item", "item.date | date: '%Y'" %}
+
+<div class="page-header">
+    <p class="eyebrow">// research output</p>
+    <h1>Publications</h1>
+    <p class="page-lede">
+        Work on real-time scheduling, edge intelligence, and security for deep neural networks.
+        Full list below, grouped by year.
+    </p>
+</div>
+
+<div class="row">
+    <div class="col-12 col-lg-10">
+        {% for year in pubs_by_year %}
+        <h2 class="year-heading" id="year-{{ year.name }}">{{ year.name }}</h2>
+        <div class="card publication-card year-card">
+            <div class="card-body p-0">
+                {% for item in year.items %}
+                    {% include widgets/publication_item.html item=item hide_bottom_border=forloop.last first=forloop.first last=forloop.last %}
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="col-2 d-none d-lg-block">
+        <div id="navbar-year" class="nav nav-pills flex-column year-nav sticky-top">
+            {% for year in pubs_by_year %}
+            <a class="nav-link {% if forloop.first %}active{% endif %}" href="#year-{{ year.name }}">{{ year.name }}</a>
+            {% endfor %}
+        </div>
+    </div>
+</div>

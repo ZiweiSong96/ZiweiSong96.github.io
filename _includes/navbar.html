@@ -1,0 +1,31 @@
+{% assign profile = site.data.profile %}
+<nav class="navbar navbar-expand-sm navbar-light fixed-top" id="site-navbar">
+    <div class="{% if page.container_class %}{{ page.container_class }}{% else %}container-lg{% endif %}">
+        <a class="navbar-brand" href="{{ '/' | relative_url }}" aria-label="{{ profile.primary_name }} — home">
+            <span class="navbar-prompt" aria-hidden="true">&gt;</span>
+            <strong class="navbar-name">{{ profile.navbar_name }}</strong><span class="navbar-caret" aria-hidden="true"></span>
+        </a>
+
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="fas fa-bars" aria-hidden="true"></i>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+            <ul class="navbar-nav ml-auto align-items-sm-center">
+                {% for item in site.data.navigation.pages %}
+                <li class="nav-item {% if item.name == page.navbar_title or include.active_page == item.name %}active{% endif %}">
+                    <a class="nav-link" href="{{ item.url | relative_url }}">{{ item.name }}</a>
+                </li>
+                {% endfor %}
+                {% if profile.github %}
+                <li class="nav-item nav-item-icon">
+                    <a class="nav-link" href="https://github.com/{{ profile.github }}" target="_blank" rel="noopener" aria-label="GitHub">
+                        <i class="fab fa-github" aria-hidden="true"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="scroll-progress" aria-hidden="true"><span id="scroll-progress-bar"></span></div>

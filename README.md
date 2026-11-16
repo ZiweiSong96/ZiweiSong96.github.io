@@ -1,29 +1,68 @@
-A Github Pages template for academic websites. This was forked (then detached) by [Stuart Geiger](https://github.com/staeiou) from the [Minimal Mistakes Jekyll Theme](https://mmistakes.github.io/minimal-mistakes/), which is © 2016 Michael Rose and released under the MIT License. See LICENSE.md.
+# Ziwei Song — academic homepage
 
-Ziwei Song's personal page, following the instruction!
+Personal academic website, hosted with GitHub Pages at
+<https://ziweisong96.github.io>.
 
-# Instructions
+Built on [academic-homepage](https://github.com/luost26/academic-homepage) (Jekyll +
+Bootstrap 4) with a custom dark technical theme.
 
-1. Register a GitHub account if you don't have one and confirm your e-mail (required!)
-1. Fork [this repository](https://github.com/academicpages/academicpages.github.io) by clicking the "fork" button in the top right. 
-1. Go to the repository's settings (rightmost item in the tabs that start with "Code", should be below "Unwatch"). Rename the repository "[your GitHub username].github.io", which will also be your website's URL.
-1. Set site-wide configuration and create content & metadata (see below -- also see [this set of diffs](http://archive.is/3TPas) showing what files were changed to set up [an example site](https://getorg-testacct.github.io) for a user with the username "getorg-testacct")
-1. Upload any files (like PDFs, .zip files, etc.) to the files/ directory. They will appear at https://[your GitHub username].github.io/files/example.pdf.  
-1. Check status by going to the repository settings, in the "GitHub pages" section
-1. (Optional) Use the Jupyter notebooks or python scripts in the `markdown_generator` folder to generate markdown files for publications and talks from a TSV file.
+## Structure
 
-See more info at https://academicpages.github.io/
+| Path | What it is |
+| --- | --- |
+| `_data/profile.yml` | Name, positions, email, social links, bio, education, experience, awards |
+| `_data/navigation.yml` | Top navigation items |
+| `_data/display.yml` | Which homepage widgets to show + footer text |
+| `_publications/` | One Markdown file per publication |
+| `_news/` | One Markdown file per news item |
+| `_includes/widgets/` | Homepage cards (profile, bio, experience, news, publications, beyond research) |
+| `_layouts/default.html` | Page shell, fonts, meta tags, scripts |
+| `assets/css/global.css` | The whole dark theme |
+| `assets/js/site.js` | Scroll progress, card reveal, portrait shrink |
+| `assets/images/` | Portrait, favicon, social share card |
 
-## To run locally (not on GitHub Pages, to serve on your own computer)
+## Editing content
 
-1. Clone the repository and made updates as detailed above
-1. Make sure you have ruby-dev, bundler, and nodejs installed: `sudo apt install ruby-dev ruby-bundler nodejs`
-1. Run `bundle clean` to clean up the directory (no need to run `--force`)
-1. Run `bundle install` to install ruby dependencies. If you get errors, delete Gemfile.lock and try again.
-1. Run `bundle exec jekyll liveserve` to generate the HTML and serve it from `localhost:4000` the local server will automatically rebuild and refresh the pages on change.
+- **Profile / bio / education / awards**: `_data/profile.yml`
+- **Add a publication**: copy a file in `_publications/` and edit the front matter
+  (`title`, `date`, `selected`, `pub`, `venue_short`, `abstract`, `authors`, `links`).
+- **Add news**: copy a file in `_news/`.
+- **Navigation**: `_data/navigation.yml` (the `name` must match the page's
+  `navbar_title`).
+- **Colours / typography**: the CSS custom properties at the top of
+  `assets/css/global.css`.
 
-# Changelog -- bugfixes and enhancements
+## Local preview
 
-There is one logistical issue with a ready-to-fork template theme like academic pages that makes it a little tricky to get bug fixes and updates to the core theme. If you fork this repository, customize it, then pull again, you'll probably get merge conflicts. If you want to save your various .yml configuration files and markdown files, you can delete the repository and fork it again. Or you can manually patch. 
+The site is plain Jekyll 3.9 and also builds in GitHub Pages' native builder.
 
-To support this, all changes to the underlying code appear as a closed issue with the tag 'code change' -- get the list [here](https://github.com/academicpages/academicpages.github.io/issues?q=is%3Aclosed%20is%3Aissue%20label%3A%22code%20change%22%20). Each issue thread includes a comment linking to the single commit or a diff across multiple commits, so those with forked repositories can easily identify what they need to patch.
+```bash
+# One-time setup (Ruby 3.1 via conda; system Ruby may work too)
+conda create -n jekyll -c conda-forge ruby=3.1 gcc_linux-64 gxx_linux-64 make
+conda activate jekyll
+gem install bundler
+
+# Preview
+bundle install
+bundle exec jekyll serve
+# → http://127.0.0.1:4000
+```
+
+On this machine the environment already exists; run:
+
+```bash
+conda run -n jekyll bundle exec jekyll serve
+```
+
+## Deployment
+
+Push to `master`. GitHub Pages builds the site automatically; no Actions workflow
+or generated `_site/` directory is committed.
+
+## Things still to fill in
+
+- Google Scholar ID (`gscholar` in `_data/profile.yml`) and any LinkedIn / ORCID.
+- DOI or PDF links for the three publications (`links:` in `_publications/`).
+- A current CV PDF (the CV page currently says "available on request").
+- Optional: university logos in `assets/images/badges/` if you want them next to
+  Education entries.
