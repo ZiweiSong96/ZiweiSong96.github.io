@@ -198,9 +198,21 @@
 
     function pickVictim(exclude) {
         var victim = null;
+        var hot = null;
+
+        if (state.policy === 'rtmoe') {
+            var weights = INSTRUCTIONS[state.instruction].weights;
+            hot = weights
+                .map(function (weight, index) { return { weight: weight, index: index }; })
+                .sort(function (a, b) { return b.weight - a.weight; })
+                .slice(0, 2)
+                .map(function (item) { return item.index; });
+        }
+
         for (var i = 0; i < state.residents.length; i += 1) {
             var expert = state.residents[i];
             if (expert === exclude) continue;
+            if (hot && hot.indexOf(expert) !== -1) continue;
             if (victim === null) {
                 victim = expert;
                 continue;
@@ -212,6 +224,19 @@
                 victim = expert;
             }
         }
+
+        if (victim === null) {
+            for (var j = 0; j < state.residents.length; j += 1) {
+                var fallback = state.residents[j];
+                if (fallback === exclude) continue;
+                if (victim === null) {
+                    victim = fallback;
+                    continue;
+                }
+                if (state.lastUsed[fallback] < state.lastUsed[victim]) victim = fallback;
+            }
+        }
+
         return victim;
     }
 

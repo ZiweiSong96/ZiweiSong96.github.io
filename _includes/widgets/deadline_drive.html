@@ -67,8 +67,8 @@
             </label>
             <div class="dd-policy" role="group" aria-label="Eviction policy">
                 <span class="dd-label">Policy</span>
-                <button class="dd-seg" data-policy="lru" aria-pressed="false" type="button">LRU</button>
-                <button class="dd-seg is-active" data-policy="rtmoe" aria-pressed="true" type="button">RT-MoE</button>
+                <button class="dd-seg" data-policy="lru" aria-pressed="false" type="button" title="Evict the least recently used expert">LRU</button>
+                <button class="dd-seg is-active" data-policy="rtmoe" aria-pressed="true" type="button" title="Keep hot experts resident and use free slots for prefetch">RT-MoE</button>
             </div>
         </div>
 
@@ -79,12 +79,21 @@
             <span><em>batch</em><b id="dd-m-batch">—</b></span>
         </div>
 
+        <p class="dd-try">
+            Try <strong>Avoid cyclist</strong> with <strong>2 experts</strong> at <strong>30 ms</strong> —
+            or switch to <strong>LRU</strong> and watch the tail.
+        </p>
+
         <details class="dd-why">
             <summary>What am I looking at?</summary>
             <p>
                 Each control tick sends a batch of tokens from the car to a mixture-of-experts model.
                 Only a few experts fit in memory; loading an absent expert adds latency. If the total
                 exceeds the control deadline, the car hesitates.
+            </p>
+            <p>
+                LRU evicts the least recently used expert. RT-MoE protects hot experts and uses free
+                slots for prefetch.
             </p>
             <p>
                 Inspired by
