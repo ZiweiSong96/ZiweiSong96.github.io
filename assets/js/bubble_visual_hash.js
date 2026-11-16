@@ -112,6 +112,6 @@ canvases.forEach(function (canvas) {
     var hash = canvas.getAttribute("data-bubble-visual-hash");
     var width = canvas.viewBox.baseVal.width;
     var height = canvas.viewBox.baseVal.height;
-    var bubbleInfo = createBubbleInfo(createHashGroupForString(hash), 12, width, height);
+    var bubbleInfo = createBubbleInfo(createHashGroupForString(hash), 16, width, height);
     drawBubble(canvas, bubbleInfo);
 });

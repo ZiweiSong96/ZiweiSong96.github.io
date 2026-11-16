@@ -1,7 +1,7 @@
 ---
 title: "Optimized Co-scheduling of Mixed-precision Neural Network Accelerator for Real-time Multitasking Applications"
 date: 2020-01-01 00:01:00 +0800
-selected: true
+selected: false
 pub: "Journal of Systems Architecture (JSA)"
 venue_short: "JSA"
 pub_date: "2020"

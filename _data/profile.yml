@@ -22,18 +22,20 @@ cv_link: "/cv/"
 portrait_url: "/assets/images/photos/avatar-v2.webp"
 
 research_interests:
-  - "Real-Time Systems"
-  - "Autonomous Driving Systems"
+  - "Real-Time AI Systems"
+  - "Autonomous Driving"
+  - "Mixture-of-Experts Inference"
   - "Edge Intelligence"
-  - "Internet of Things"
 
 short_bio_text_justify: false
 short_bio: >-
   <p>
     I am a Ph.D. student in the <a href="https://www.cs.cityu.edu.hk/" target="_blank">Department of Computer Science</a>
     at <a href="https://www.cityu.edu.hk/" target="_blank">City University of Hong Kong</a>, advised by
-    <a href="https://www.cs.cityu.edu.hk/~nanguan/" target="_blank">Prof. Nan Guan</a>. My research lies in
-    real-time systems, autonomous driving systems, and real-time intelligence on edge and embedded devices.
+    <a href="https://www.cs.cityu.edu.hk/~nanguan/" target="_blank">Prof. Nan Guan</a>. My research sits at the
+    intersection of real-time systems and AI: making large-model inference — especially mixture-of-experts —
+    predictable under tight memory and latency budgets, and building autonomous driving systems that can be
+    reconfigured on the fly.
   </p>
   <p>
     Prior to my Ph.D., I received my B.S. and M.S. degrees in Software Engineering from the

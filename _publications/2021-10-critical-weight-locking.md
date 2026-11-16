@@ -1,7 +1,7 @@
 ---
 title: "Work-in-Progress: Critical-Weight Based Locking Scheme for DNN IP Protection in Edge Computing"
 date: 2021-10-01 00:01:00 +0800
-selected: true
+selected: false
 pub: "International Conference on Hardware/Software Codesign and System Synthesis (CODES+ISSS)"
 venue_short: "CODES+ISSS"
 pub_date: "2021"

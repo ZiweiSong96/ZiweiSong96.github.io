@@ -703,7 +703,10 @@ button:focus-visible {
     aspect-ratio: 3 / 2;
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
-    background: var(--bg-2);
+    background:
+        radial-gradient(circle at 28% 22%, rgba(62, 230, 192, 0.10), transparent 62%),
+        radial-gradient(circle at 82% 78%, rgba(106, 169, 255, 0.08), transparent 58%),
+        var(--bg-2);
 }
 
 .pub-badge {
@@ -795,6 +798,12 @@ button:focus-visible {
     border-color: rgba(106, 169, 255, 0.3);
     background: rgba(106, 169, 255, 0.12);
     color: var(--blue);
+}
+
+.badge-accepted {
+    border-color: rgba(242, 184, 107, 0.35);
+    background: rgba(242, 184, 107, 0.12);
+    color: #f2b86b;
 }
 
 .publication-footer {
