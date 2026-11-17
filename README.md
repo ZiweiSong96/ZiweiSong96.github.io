@@ -17,28 +17,29 @@ Bootstrap 4) with a custom dark technical theme.
 | `_news/` | One Markdown file per news item |
 | `_includes/widgets/` | Homepage cards (profile, bio, experience, news, publications, beyond research) |
 | `_layouts/default.html` | Page shell, fonts, meta tags, scripts |
-| `assets/css/global.css` | The whole dark theme |
+| `assets/css/global.css` | Base layout and theme variables |
+| `assets/css/steampunk.css` | Brass-and-parchment theme overrides |
 | `assets/js/site.js` | Scroll progress, card reveal, portrait shrink |
 | `assets/images/` | Portrait, favicon, social share card |
 
-## Interactive lab — Deadline Drive
+## Interactive lab — Deadline Express
 
-The homepage includes a small interactive simulation of an autonomous car running
-an MoE model under a memory budget and a control deadline.
+The homepage includes an interactive steampunk railway scene: a brass locomotive
+at a station, connected to an MoE engine under a memory budget and a control deadline.
 
 | File | Purpose |
 | --- | --- |
 | `_includes/widgets/deadline_drive.html` | Markup and controls |
 | `assets/css/deadline-drive.css` | Lab card styling |
-| `assets/js/deadline-drive.js` | Simulation, road canvas, expert rack, latency chart |
+| `assets/js/deadline-drive.js` | Simulation, railway canvas, expert gauges, latency chart |
 
 It is loaded only on pages with `show_deadline_drive: true` in the front matter
 (currently `index.html`). Tune the scenario weights, load cost and defaults in the
 `INSTRUCTIONS` / `state` objects at the top of the JS file. The simulation is
 illustrative, not a benchmark.
 
-The car, expert rack and latency chart are paper hotspots: hover or tap them (and
-the `Earlier work` chips) to open the publication card. Paper metadata lives in
+The locomotive, MoE engine cabinet and latency chart are paper hotspots: hover or tap
+them (and the `Earlier work` chips) to open the publication card. Paper metadata lives in
 the `PAPERS` object in `assets/js/deadline-drive.js`.
 
 ## Editing content

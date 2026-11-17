@@ -3,10 +3,10 @@
         <header class="lab-header">
             <div class="lab-heading">
                 <p class="eyebrow">// the real-time atelier</p>
-                <h2 id="dd-title">Deadline Drive</h2>
+                <h2 id="dd-title">Deadline Express</h2>
                 <p class="lab-sub">
-                    A brass-and-steam autonomous car runs an MoE engine on a fixed memory budget.
-                    Keep the control loop on time.
+                    A brass-and-steam locomotive runs an MoE engine on a fixed memory budget.
+                    Keep the express on time.
                 </p>
             </div>
             <div class="lab-status">
@@ -22,10 +22,10 @@
 
         <div class="dd-grid">
             <div class="dd-stage-wrap">
-                <canvas id="dd-road" role="img" aria-label="Top-down night road with an autonomous car sending tokens to a mixture-of-experts model."></canvas>
+                <canvas id="dd-road" role="img" aria-label="Side view of a steampunk railway station with a steam locomotive and a brass mixture-of-experts control engine."></canvas>
                 <div class="dd-stage-caption">
-                    <button type="button" class="dd-hotspot" data-paper="autoware" aria-expanded="false" aria-controls="dd-paper-pop">AV · Autoware.Flex</button>
-                    <span id="dd-instr-label">Cruise</span>
+                    <button type="button" class="dd-hotspot" data-paper="autoware" aria-expanded="false" aria-controls="dd-paper-pop">Autoware.Flex · Express</button>
+                    <span id="dd-instr-label">Full steam</span>
                 </div>
             </div>
 
@@ -55,10 +55,10 @@
 
         <div class="dd-instructions" role="group" aria-label="Human instruction">
             <span class="dd-label">Instruction</span>
-            <button class="dd-chip is-active" data-instruction="cruise" aria-pressed="true" type="button">Cruise</button>
-            <button class="dd-chip" data-instruction="exit" aria-pressed="false" type="button">Take exit</button>
-            <button class="dd-chip" data-instruction="avoid" aria-pressed="false" type="button">Avoid cyclist</button>
-            <button class="dd-chip" data-instruction="pull" aria-pressed="false" type="button">Pull over</button>
+            <button class="dd-chip is-active" data-instruction="cruise" aria-pressed="true" type="button">Full steam</button>
+            <button class="dd-chip" data-instruction="exit" aria-pressed="false" type="button">Switch track</button>
+            <button class="dd-chip" data-instruction="avoid" aria-pressed="false" type="button">Brake for signal</button>
+            <button class="dd-chip" data-instruction="pull" aria-pressed="false" type="button">Stop at station</button>
         </div>
 
         <div class="dd-controls">
@@ -96,16 +96,16 @@
         </div>
 
         <p class="dd-try">
-            Try <strong>Avoid cyclist</strong> with <strong>2 experts</strong> at <strong>30 ms</strong> —
+            Try <strong>Brake for signal</strong> with <strong>2 experts</strong> at <strong>30 ms</strong> —
             or switch to <strong>LRU</strong> and watch the tail.
         </p>
 
         <details class="dd-why">
             <summary>What am I looking at?</summary>
             <p>
-                Each control tick sends a batch of tokens from the car to a mixture-of-experts model.
-                Only a few experts fit in memory; loading an absent expert adds latency. If the total
-                exceeds the control deadline, the car hesitates.
+                Each control tick sends a batch of tokens from the locomotive to a mixture-of-experts engine.
+                Only a few experts fit in the engine; loading an absent expert adds latency. If the total
+                exceeds the control deadline, the express hesitates.
             </p>
             <p>
                 LRU evicts the least recently used expert. RT-MoE protects hot experts and uses free

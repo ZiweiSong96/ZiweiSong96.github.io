@@ -45,28 +45,28 @@
 
     var INSTRUCTIONS = {
         cruise: {
-            label: 'Cruise',
+            label: 'Full steam',
             lane: 1,
             bonus: 0,
             slow: false,
             weights: [0.30, 0.24, 0.14, 0.10, 0.08, 0.06, 0.05, 0.03]
         },
         exit: {
-            label: 'Take exit',
+            label: 'Switch track',
             lane: 2,
             bonus: 1,
             slow: false,
             weights: [0.16, 0.12, 0.26, 0.20, 0.10, 0.07, 0.05, 0.04]
         },
         avoid: {
-            label: 'Avoid cyclist',
+            label: 'Brake for signal',
             lane: 0,
             bonus: 3,
-            slow: false,
+            slow: true,
             weights: [0.24, 0.22, 0.08, 0.06, 0.16, 0.12, 0.07, 0.05]
         },
         pull: {
-            label: 'Pull over',
+            label: 'Stop at station',
             lane: 2,
             bonus: -2,
             slow: true,
@@ -163,8 +163,7 @@
     var roadH = 0;
     var chartW = 0;
     var chartH = 0;
-    var buildingsTop = [];
-    var buildingsBottom = [];
+    var skyline = [];
     var rafId = null;
     var activePaper = null;
     var pinnedPaper = null;
@@ -532,14 +531,14 @@
             if (state.actions.length > 6) state.actions.shift();
         }
 
-        var carYNow = state.carY || laneY(INSTRUCTIONS[state.instruction].lane);
+        var train = trainGeometry();
         state.tokens = batch.map(function (token, index) {
             return {
                 expert: token.expert,
                 hit: token.hit,
                 age: reduceMotion.matches ? 0.55 : 0,
-                sx: carX() + 4 + (state.rng() - 0.5) * 3,
-                sy: carYNow - 16 + (state.rng() - 0.5) * 3,
+                sx: train.anchorX + (state.rng() - 0.5) * 3,
+                sy: train.anchorY + (state.rng() - 0.5) * 3,
                 delay: (index / batch.length) * 0.12
             };
         });
@@ -645,547 +644,567 @@
     }
 
     function buildScenery() {
-        var rng = mulberry32(1337);
-        var top = roadH * 0.30;
-        var bottom = roadH * 0.78;
-        buildingsTop = [];
-        buildingsBottom = [];
-
-        function makeStrip(anchor, available, direction) {
-            var result = [];
-            var x = -24;
-            while (x < roadW + 24) {
-                var bw = 18 + rng() * 46;
-                var bh = Math.min(Math.max(6, available - 6), 10 + rng() * Math.max(8, available * 0.8));
-                var windows = [];
-                var cols = Math.max(1, Math.floor((bw - 6) / 7));
-                var rows = Math.max(1, Math.floor((bh - 6) / 7));
-                for (var c = 0; c < cols; c += 1) {
-                    for (var r = 0; r < rows; r += 1) {
-                        if (rng() < 0.16) {
-                            windows.push({
-                                x: 3 + c * 7,
-                                y: 3 + r * 7,
-                                teal: rng() < 0.72
-                            });
-                        }
+        var rng = mulberry32(20261117);
+        skyline = [];
+        var x = -24;
+        while (x < roadW + 24) {
+            var bw = 22 + rng() * 48;
+            var bh = 18 + rng() * 54;
+            var windows = [];
+            var cols = Math.max(1, Math.floor((bw - 6) / 9));
+            var rows = Math.max(1, Math.floor((bh - 8) / 10));
+            for (var c = 0; c < cols; c += 1) {
+                for (var r = 0; r < rows; r += 1) {
+                    if (rng() < 0.28) {
+                        windows.push({ x: 4 + c * 9, y: 5 + r * 10, warm: rng() < 0.65 });
                     }
                 }
-                result.push({
-                    x: x,
-                    bw: bw,
-                    bh: bh,
-                    windows: windows,
-                    accent: rng() < 0.12,
-                    direction: direction
-                });
-                x += bw + 5 + rng() * 8;
             }
-            return result;
-        }
-
-        if (roadW > 0 && top > 20) {
-            buildingsTop = makeStrip(top, top, 'up');
-        }
-        if (roadW > 0 && roadH - bottom > 20) {
-            buildingsBottom = makeStrip(bottom, roadH - bottom, 'down');
-        }
-    }
-
-    function drawBuildings(ctx) {
-        var top = roadH * 0.30;
-        var bottom = roadH * 0.78;
-
-        function drawStrip(items, anchor) {
-            items.forEach(function (building) {
-                var y = building.direction === 'up' ? anchor - building.bh : anchor;
-                ctx.fillStyle = '#2b2117';
-                ctx.fillRect(building.x, y, building.bw, building.bh);
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.035)';
-                ctx.lineWidth = 1;
-                ctx.strokeRect(building.x + 0.5, y + 0.5, building.bw - 1, building.bh - 1);
-
-                building.windows.forEach(function (windowItem) {
-                    ctx.fillStyle = windowItem.teal ? 'rgba(199, 154, 74, 0.30)' : 'rgba(242, 184, 107, 0.26)';
-                    ctx.fillRect(building.x + windowItem.x, y + windowItem.y, 2, 2);
-                });
-
-                if (building.accent) {
-                    ctx.fillStyle = 'rgba(199, 154, 74, 0.55)';
-                    ctx.fillRect(building.x + 4, y + 2, Math.min(building.bw - 8, 18), 1);
-                }
+            skyline.push({
+                x: x,
+                bw: bw,
+                bh: bh,
+                windows: windows,
+                chimney: rng() < 0.4,
+                chimneyH: 10 + rng() * 26,
+                pitched: rng() < 0.5
             });
+            x += bw + 6 + rng() * 10;
         }
-
-        drawStrip(buildingsTop, top);
-        drawStrip(buildingsBottom, bottom);
     }
 
-    function drawStreetlights(ctx, top, bottom) {
-        for (var x = 36; x < roadW; x += 92) {
-            ctx.strokeStyle = 'rgba(90, 70, 45, 0.9)';
+    function drawSkyline(ctx, trackY) {
+        skyline.forEach(function (building) {
+            var y = trackY - building.bh;
+            ctx.fillStyle = '#241a12';
+            ctx.fillRect(building.x, y, building.bw, building.bh);
+            ctx.strokeStyle = 'rgba(199, 154, 74, 0.08)';
             ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(x, top);
-            ctx.lineTo(x, top - 9);
-            ctx.moveTo(x, bottom);
-            ctx.lineTo(x, bottom + 9);
-            ctx.stroke();
+            ctx.strokeRect(building.x + 0.5, y + 0.5, building.bw - 1, building.bh - 1);
 
-            [top - 9, bottom + 9].forEach(function (y) {
-                var glow = ctx.createRadialGradient(x, y, 0, x, y, 18);
-                glow.addColorStop(0, 'rgba(242, 184, 107, 0.2)');
-                glow.addColorStop(1, 'rgba(242, 184, 107, 0)');
-                ctx.fillStyle = glow;
+            if (building.pitched) {
                 ctx.beginPath();
-                ctx.arc(x, y, 18, 0, Math.PI * 2);
+                ctx.moveTo(building.x - 3, y);
+                ctx.lineTo(building.x + building.bw / 2, y - 9);
+                ctx.lineTo(building.x + building.bw + 3, y);
+                ctx.closePath();
+                ctx.fillStyle = '#1b130c';
                 ctx.fill();
-            });
+            }
 
-            ctx.fillStyle = 'rgba(242, 184, 107, 0.9)';
-            ctx.fillRect(x - 2, top - 13, 4, 4);
-            ctx.fillRect(x - 2, bottom + 8, 4, 4);
-        }
+            if (building.chimney) {
+                var chx = building.x + building.bw * 0.68;
+                ctx.fillStyle = '#1b130c';
+                ctx.fillRect(chx, y - building.chimneyH, 5, building.chimneyH);
+                ctx.fillStyle = 'rgba(238, 226, 203, 0.05)';
+                for (var p = 0; p < 3; p += 1) {
+                    ctx.beginPath();
+                    ctx.arc(chx + 2 + p * 4, y - building.chimneyH - 4 - p * 5, 2 + p * 1.5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            building.windows.forEach(function (windowItem) {
+                ctx.fillStyle = windowItem.warm ? 'rgba(242, 184, 107, 0.32)' : 'rgba(199, 154, 74, 0.26)';
+                ctx.fillRect(building.x + windowItem.x, y + windowItem.y, 2.5, 3);
+            });
+        });
     }
 
-    function drawClockTower(ctx, top) {
-        var tx = roadW * 0.42;
-        var width = 18;
-        var height = Math.min(46, top - 8);
-        var y = top - height;
+    function drawStation(ctx, trackY) {
+        var bx = roadW * 0.01;
+        var bw = Math.min(roadW * 0.19, 92);
+        var bh = Math.min(roadH * 0.32, 76);
+        var by = trackY - bh;
+
+        ctx.fillStyle = '#2b1e14';
+        ctx.fillRect(bx, by, bw, bh);
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.26)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(bx + 0.5, by + 0.5, bw - 1, bh - 1);
+
+        ctx.beginPath();
+        ctx.moveTo(bx - 4, by);
+        ctx.lineTo(bx + bw / 2, by - 12);
+        ctx.lineTo(bx + bw + 4, by);
+        ctx.closePath();
+        ctx.fillStyle = '#1b130c';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.3)';
+        ctx.stroke();
+
+        for (var i = 0; i < 3; i += 1) {
+            var wx = bx + 8 + i * ((bw - 20) / 2);
+            var wy = by + bh * 0.42;
+            ctx.fillStyle = 'rgba(242, 184, 107, 0.42)';
+            ctx.beginPath();
+            ctx.moveTo(wx, wy + 14);
+            ctx.lineTo(wx, wy);
+            ctx.arc(wx + 5, wy, 5, Math.PI, 0);
+            ctx.lineTo(wx + 10, wy + 14);
+            ctx.closePath();
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(199, 154, 74, 0.4)';
+            ctx.stroke();
+        }
+
+        ctx.fillStyle = 'rgba(239, 196, 120, 0.8)';
+        ctx.font = '6px "IBM Plex Mono", ui-monospace, monospace';
+        ctx.fillText('STATION', bx + 10, by + 12);
+
+        ctx.fillStyle = '#241a12';
+        ctx.fillRect(bx + bw - 6, trackY - 34, roadW * 0.13, 4);
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.3)';
+        ctx.strokeRect(bx + bw - 6, trackY - 34, roadW * 0.13, 4);
+        ctx.strokeStyle = '#4a3520';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(bx + bw - 4, trackY - 30);
+        ctx.lineTo(bx + bw - 4, trackY);
+        ctx.stroke();
+    }
+
+    function drawClockTower(ctx, trackY) {
+        var tx = roadW * 0.47;
+        var width = 20;
+        var height = Math.min(78, roadH * 0.34);
+        var y = trackY - height;
 
         ctx.fillStyle = '#241a12';
         ctx.fillRect(tx - width / 2, y, width, height);
         ctx.strokeStyle = 'rgba(199, 154, 74, 0.28)';
-        ctx.lineWidth = 1;
         ctx.strokeRect(tx - width / 2, y, width, height);
 
         ctx.beginPath();
-        ctx.moveTo(tx - width / 2 - 2, y);
-        ctx.lineTo(tx, y - 7);
-        ctx.lineTo(tx + width / 2 + 2, y);
+        ctx.moveTo(tx - width / 2 - 4, y);
+        ctx.lineTo(tx, y - 10);
+        ctx.lineTo(tx + width / 2 + 4, y);
         ctx.closePath();
         ctx.fillStyle = '#1b130c';
         ctx.fill();
         ctx.strokeStyle = 'rgba(199, 154, 74, 0.35)';
         ctx.stroke();
 
-        var faceY = y + 11;
-        ctx.fillStyle = 'rgba(239, 196, 120, 0.12)';
+        var faceY = y + 16;
+        ctx.fillStyle = 'rgba(239, 196, 120, 0.13)';
         ctx.beginPath();
-        ctx.arc(tx, faceY, 5, 0, Math.PI * 2);
+        ctx.arc(tx, faceY, 6.5, 0, Math.PI * 2);
         ctx.fill();
         ctx.strokeStyle = 'rgba(239, 196, 120, 0.55)';
         ctx.beginPath();
-        ctx.arc(tx, faceY, 5, 0, Math.PI * 2);
+        ctx.arc(tx, faceY, 6.5, 0, Math.PI * 2);
         ctx.stroke();
         ctx.beginPath();
         ctx.moveTo(tx, faceY);
-        ctx.lineTo(tx, faceY - 3);
+        ctx.lineTo(tx, faceY - 4);
         ctx.moveTo(tx, faceY);
-        ctx.lineTo(tx + 2.5, faceY + 1.5);
+        ctx.lineTo(tx + 3, faceY + 2);
         ctx.stroke();
 
-        drawGear(ctx, tx, y + height - 7, 4, 6, 'rgba(199, 154, 74, 0.4)', 0.6, performance.now() / 4000);
+        drawGear(ctx, tx, y + height - 12, 5, 8, 'rgba(199, 154, 74, 0.42)', 0.7, performance.now() / 4200);
     }
 
-    function drawRoad(ctx) {
-        var top = roadH * 0.30;
-        var bottom = roadH * 0.78;
-        var laneH = (bottom - top) / 3;
-
-        var roadGradient = ctx.createLinearGradient(0, top, 0, bottom);
-        roadGradient.addColorStop(0, '#2b2117');
-        roadGradient.addColorStop(0.5, '#3a2c20');
-        roadGradient.addColorStop(1, '#2c2118');
-        ctx.fillStyle = roadGradient;
-        ctx.fillRect(0, top, roadW, bottom - top);
-
-        ctx.save();
-        ctx.strokeStyle = 'rgba(20, 14, 9, 0.26)';
-        ctx.lineWidth = 1;
-        var stoneH = 9;
-        var stoneW = 20;
-        for (var row = 0; row < 8; row += 1) {
-            var stoneY = top + 4 + row * stoneH;
-            if (stoneY > bottom - 2) break;
-            var stoneOffset = (row % 2 ? stoneW / 2 : 0) - (state.roadOffset * 0.6 % stoneW);
-            for (var stone = -stoneW; stone < roadW + stoneW; stone += stoneW) {
-                ctx.beginPath();
-                ctx.ellipse(stone + stoneOffset, stoneY, stoneW * 0.42, stoneH * 0.3, 0, 0, Math.PI * 2);
-                ctx.stroke();
-            }
-        }
-        ctx.restore();
-
-        ctx.strokeStyle = 'rgba(199, 154, 74, 0.32)';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(0, top + 0.5);
-        ctx.lineTo(roadW, top + 0.5);
-        ctx.moveTo(0, bottom - 0.5);
-        ctx.lineTo(roadW, bottom - 0.5);
-        ctx.stroke();
-
-        ctx.save();
-        ctx.strokeStyle = 'rgba(226, 198, 148, 0.3)';
-        ctx.lineWidth = 1;
-        ctx.setLineDash([14, 12]);
-        ctx.lineDashOffset = -state.roadOffset;
-        for (var i = 1; i < 3; i += 1) {
-            var y = top + laneH * i;
-            ctx.beginPath();
-            ctx.moveTo(0, y);
-            ctx.lineTo(roadW, y);
-            ctx.stroke();
-        }
-        ctx.restore();
-
-        ctx.fillStyle = 'rgba(199, 154, 74, 0.035)';
-        ctx.fillRect(0, top + laneH * 1.35, roadW, laneH * 0.3);
-    }
-
-    function drawRoute(ctx) {
-        var instruction = INSTRUCTIONS[state.instruction];
-        var lane = laneY(state.targetLane);
-        var instructionY = laneY(instruction.lane);
-
-        ctx.save();
-        ctx.strokeStyle = 'rgba(199, 154, 74, 0.2)';
-        ctx.lineWidth = 2;
-        ctx.setLineDash([5, 7]);
-        ctx.lineDashOffset = -state.roadOffset * 0.7;
-        ctx.beginPath();
-        ctx.moveTo(carX() + 26, instructionY);
-        ctx.lineTo(roadW - 12, instructionY);
-        ctx.stroke();
-        ctx.restore();
-
-        if (state.instruction === 'exit') {
-            ctx.save();
-            ctx.strokeStyle = 'rgba(199, 154, 74, 0.3)';
+    function drawGasLamps(ctx, trackY) {
+        [roadW * 0.05, roadW * 0.18, roadW * 0.52, roadW * 0.93].forEach(function (x) {
+            ctx.strokeStyle = '#4a3520';
             ctx.lineWidth = 2;
             ctx.beginPath();
-            ctx.moveTo(roadW * 0.58, laneY(2));
-            ctx.quadraticCurveTo(roadW * 0.78, laneY(2), roadW * 0.93, roadH * 0.80);
+            ctx.moveTo(x, trackY);
+            ctx.lineTo(x, trackY - 30);
             ctx.stroke();
-            ctx.restore();
 
-            ctx.fillStyle = 'rgba(42, 31, 21, 0.88)';
-            ctx.strokeStyle = 'rgba(199, 154, 74, 0.5)';
-            roundRect(ctx, roadW * 0.64, roadH * 0.31, 34, 14, 3);
+            ctx.fillStyle = '#241a12';
+            roundRect(ctx, x - 4, trackY - 39, 8, 10, 2);
             ctx.fill();
+            ctx.strokeStyle = 'rgba(199, 154, 74, 0.55)';
+            ctx.lineWidth = 0.8;
             ctx.stroke();
-            ctx.fillStyle = 'rgba(199, 154, 74, 0.9)';
-            ctx.font = '8px "IBM Plex Mono", ui-monospace, monospace';
-            ctx.fillText('EXIT', roadW * 0.64 + 6, roadH * 0.31 + 9);
+
+            var glow = ctx.createRadialGradient(x, trackY - 33, 0, x, trackY - 33, 14);
+            glow.addColorStop(0, 'rgba(242, 184, 107, 0.22)');
+            glow.addColorStop(1, 'rgba(242, 184, 107, 0)');
+            ctx.fillStyle = glow;
+            ctx.beginPath();
+            ctx.arc(x, trackY - 33, 14, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = 'rgba(255, 236, 196, 0.9)';
+            ctx.beginPath();
+            ctx.arc(x, trackY - 34, 1.8, 0, Math.PI * 2);
+            ctx.fill();
+        });
+    }
+
+    function drawBackdrop(ctx, trackY) {
+        var sky = ctx.createLinearGradient(0, 0, 0, trackY);
+        sky.addColorStop(0, '#17110c');
+        sky.addColorStop(0.55, '#332417');
+        sky.addColorStop(1, '#6b4526');
+        ctx.fillStyle = sky;
+        ctx.fillRect(0, 0, roadW, trackY);
+
+        var ground = ctx.createLinearGradient(0, trackY, 0, roadH);
+        ground.addColorStop(0, '#1c140d');
+        ground.addColorStop(1, '#0f0a06');
+        ctx.fillStyle = ground;
+        ctx.fillRect(0, trackY, roadW, roadH - trackY);
+
+        var moonX = roadW * 0.17;
+        var moonY = roadH * 0.19;
+        var moonR = Math.max(9, Math.min(roadW, roadH) * 0.055);
+        var moonGlow = ctx.createRadialGradient(moonX, moonY, moonR * 0.3, moonX, moonY, moonR * 3.4);
+        moonGlow.addColorStop(0, 'rgba(255, 236, 196, 0.22)');
+        moonGlow.addColorStop(1, 'rgba(255, 236, 196, 0)');
+        ctx.fillStyle = moonGlow;
+        ctx.beginPath();
+        ctx.arc(moonX, moonY, moonR * 3.4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = 'rgba(255, 239, 204, 0.8)';
+        ctx.beginPath();
+        ctx.arc(moonX, moonY, moonR, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = 'rgba(120, 90, 55, 0.12)';
+        ctx.beginPath();
+        ctx.arc(moonX - moonR * 0.3, moonY - moonR * 0.2, moonR * 0.22, 0, Math.PI * 2);
+        ctx.arc(moonX + moonR * 0.35, moonY + moonR * 0.25, moonR * 0.15, 0, Math.PI * 2);
+        ctx.fill();
+
+        drawGear(ctx, roadW * 0.09, roadH * 0.12, Math.min(roadW, roadH) * 0.07, 10, 'rgba(199, 154, 74, 0.09)', 1, 0.2);
+
+        drawSkyline(ctx, trackY);
+        drawStation(ctx, trackY);
+        drawClockTower(ctx, trackY);
+        drawGasLamps(ctx, trackY);
+    }
+
+    function drawTrack(ctx, trackY) {
+        ctx.fillStyle = '#3a2c20';
+        ctx.fillRect(0, trackY - 8, roadW, 3);
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.35)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, trackY - 8);
+        ctx.lineTo(roadW, trackY - 8);
+        ctx.stroke();
+
+        ctx.fillStyle = 'rgba(16, 11, 7, 0.7)';
+        ctx.fillRect(0, trackY + 7, roadW, roadH - trackY - 7);
+
+        var spacing = 28;
+        var offset = -(state.roadOffset * 0.8 % spacing);
+        for (var x = -spacing; x < roadW + spacing; x += spacing) {
+            var sleeperX = x + offset;
+            ctx.fillStyle = '#2b1e14';
+            ctx.fillRect(sleeperX, trackY + 1, 16, 5);
+            ctx.strokeStyle = 'rgba(199, 154, 74, 0.1)';
+            ctx.lineWidth = 0.7;
+            ctx.strokeRect(sleeperX, trackY + 1, 16, 5);
         }
 
-        if (state.instruction === 'avoid') {
-            var cx = roadW * 0.64;
-            var cy = laneY(1);
-            ctx.strokeStyle = 'rgba(242, 184, 107, 0.6)';
+        ctx.fillStyle = 'rgba(199, 154, 74, 0.08)';
+        for (var stone = 0; stone < 28; stone += 1) {
+            var stoneX = (stone * 37 + 11) % roadW;
+            var stoneY = trackY + 10 + ((stone * 13) % Math.max(1, roadH - trackY - 12));
+            ctx.fillRect(stoneX, stoneY, 2, 1.5);
+        }
+
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.7)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0, trackY + 0.5);
+        ctx.lineTo(roadW, trackY + 0.5);
+        ctx.stroke();
+        ctx.strokeStyle = 'rgba(242, 184, 107, 0.35)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, trackY + 2.5);
+        ctx.lineTo(roadW, trackY + 2.5);
+        ctx.stroke();
+
+        if (state.instruction === 'exit') {
+            ctx.strokeStyle = 'rgba(199, 154, 74, 0.6)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(roadW * 0.64, trackY);
+            ctx.quadraticCurveTo(roadW * 0.78, trackY, roadW * 0.94, trackY - 20);
+            ctx.stroke();
+            ctx.strokeStyle = 'rgba(242, 184, 107, 0.4)';
             ctx.lineWidth = 1;
             ctx.beginPath();
-            ctx.arc(cx, cy, 7, 0, Math.PI * 2);
-            ctx.moveTo(cx - 4, cy);
-            ctx.lineTo(cx + 4, cy);
-            ctx.moveTo(cx, cy - 4);
-            ctx.lineTo(cx, cy + 4);
+            ctx.moveTo(roadW * 0.64, trackY + 4);
+            ctx.quadraticCurveTo(roadW * 0.78, trackY + 4, roadW * 0.94, trackY - 16);
             ctx.stroke();
-            ctx.fillStyle = 'rgba(242, 184, 107, 0.9)';
-            ctx.beginPath();
-            ctx.moveTo(cx - 5, cy - 16);
-            ctx.lineTo(cx + 5, cy - 16);
-            ctx.lineTo(cx, cy - 23);
-            ctx.closePath();
-            ctx.fill();
-            ctx.fillStyle = 'rgba(42, 31, 21, 0.9)';
-            ctx.font = '8px "IBM Plex Mono", ui-monospace, monospace';
-            ctx.fillText('!', cx - 1, cy - 17);
-        }
-
-        if (state.instruction === 'pull') {
-            ctx.fillStyle = 'rgba(42, 31, 21, 0.88)';
-            ctx.strokeStyle = 'rgba(199, 154, 74, 0.45)';
-            roundRect(ctx, roadW * 0.76, roadH * 0.81, 22, 14, 3);
-            ctx.fill();
-            ctx.stroke();
-            ctx.fillStyle = 'rgba(199, 154, 74, 0.9)';
-            ctx.font = '9px "IBM Plex Mono", ui-monospace, monospace';
-            ctx.fillText('P', roadW * 0.76 + 8, roadH * 0.81 + 10);
-        }
-
-        if (lane !== instructionY) {
-            ctx.strokeStyle = 'rgba(199, 154, 74, 0.25)';
-            ctx.setLineDash([3, 4]);
-            ctx.beginPath();
-            ctx.moveTo(carX(), lane);
-            ctx.lineTo(carX() + 24, instructionY);
-            ctx.stroke();
-            ctx.setLineDash([]);
         }
     }
 
-    function drawCar(ctx) {
-        var scale = clamp(roadW / 700, 0.82, 1.08);
-        var braking = state.lastLatency > state.deadline;
-        var cx = carX();
-        var cy = state.carY || laneY(1);
+    function drawSignals(ctx, trackY) {
+        var danger = state.lastLatency > state.deadline || state.instruction === 'avoid' || state.instruction === 'pull';
+        var x = roadW * 0.58;
+
+        ctx.strokeStyle = '#4a3520';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(x, trackY);
+        ctx.lineTo(x, trackY - 48);
+        ctx.stroke();
 
         ctx.save();
-        ctx.translate(cx, cy);
-        ctx.scale(scale, scale);
+        ctx.translate(x, trackY - 36);
+        ctx.rotate(danger ? 0 : -0.55);
+        ctx.fillStyle = danger ? 'rgba(143, 47, 47, 0.9)' : 'rgba(239, 196, 120, 0.85)';
+        roundRect(ctx, 0, -2, 18, 4, 2);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.55)';
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+        ctx.restore();
 
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+        var lampY = trackY - 46;
+        var glow = ctx.createRadialGradient(x, lampY, 0, x, lampY, 14);
+        glow.addColorStop(0, danger ? 'rgba(143, 47, 47, 0.35)' : 'rgba(63, 111, 104, 0.32)');
+        glow.addColorStop(1, 'rgba(143, 47, 47, 0)');
+        ctx.fillStyle = glow;
         ctx.beginPath();
-        ctx.ellipse(0, 5, 36, 14, 0, 0, Math.PI * 2);
+        ctx.arc(x, lampY, 14, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = danger ? '#8f2f2f' : '#3f6f68';
+        ctx.beginPath();
+        ctx.arc(x, lampY, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.65)';
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+
+        ctx.fillStyle = 'rgba(199, 154, 74, 0.7)';
+        ctx.font = '6px "IBM Plex Mono", ui-monospace, monospace';
+        ctx.fillText('SIGNAL', x - 13, trackY - 56);
+
+        if (state.instruction === 'exit') {
+            var leverX = roadW * 0.75;
+            ctx.strokeStyle = '#4a3520';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(leverX, trackY);
+            ctx.lineTo(leverX, trackY - 24);
+            ctx.stroke();
+            ctx.save();
+            ctx.translate(leverX, trackY - 24);
+            ctx.rotate(-0.5);
+            ctx.strokeStyle = 'rgba(199, 154, 74, 0.8)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(14, 0);
+            ctx.stroke();
+            ctx.restore();
+            ctx.fillStyle = 'rgba(199, 154, 74, 0.7)';
+            ctx.fillText('BRANCH', leverX - 10, trackY - 30);
+        }
+    }
+
+    function drawTrainWheel(ctx, x, y, radius, angle) {
+        ctx.fillStyle = '#1b130c';
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.globalCompositeOperation = 'lighter';
-        var beam = ctx.createLinearGradient(30, 0, 112, 0);
-        beam.addColorStop(0, 'rgba(255, 236, 196, 0.18)');
-        beam.addColorStop(1, 'rgba(199, 154, 74, 0)');
-        ctx.fillStyle = beam;
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.75)';
+        ctx.lineWidth = 1;
         ctx.beginPath();
-        ctx.moveTo(30, -7);
-        ctx.lineTo(112, -24);
-        ctx.lineTo(112, 24);
-        ctx.lineTo(30, 7);
-        ctx.closePath();
-        ctx.fill();
-        ctx.globalCompositeOperation = 'source-over';
+        ctx.arc(x, y, radius * 0.78, 0, Math.PI * 2);
+        ctx.stroke();
 
-        var steamNow = performance.now();
-        for (var puffIndex = 0; puffIndex < 4; puffIndex += 1) {
-            var puff = ((steamNow / 1500) + puffIndex * 0.25) % 1;
-            var puffX = -34 - puff * 26;
-            var puffY = -3 + Math.sin(puff * 6 + puffIndex) * 5;
-            var puffRadius = 2.5 + puff * 6;
-            ctx.fillStyle = 'rgba(238, 226, 203, ' + ((1 - puff) * 0.16).toFixed(3) + ')';
+        for (var spoke = 0; spoke < 6; spoke += 1) {
+            var a = angle + spoke * (Math.PI / 3);
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x + Math.cos(a) * radius * 0.72, y + Math.sin(a) * radius * 0.72);
+            ctx.stroke();
+        }
+
+        ctx.fillStyle = '#c79a4a';
+        ctx.beginPath();
+        ctx.arc(x, y, 1.6, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    function drawLocomotive(ctx) {
+        var t = trainGeometry();
+        var now = performance.now();
+        var braking = state.lastLatency > state.deadline || state.speed < 0.6;
+        var wheelAngle = state.roadOffset * 0.5;
+
+        ctx.save();
+        ctx.translate(t.cx, t.trackY);
+        ctx.scale(t.scale, t.scale);
+        ctx.translate(0, Math.sin(now / 900) * 0.5);
+
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+        ctx.beginPath();
+        ctx.ellipse(0, 2, 52, 7, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        var smokeCount = state.instruction === 'cruise' ? 5 : 4;
+        for (var s = 0; s < smokeCount; s += 1) {
+            var puff = ((now / 1500) + s / smokeCount) % 1;
+            var puffX = 22 - puff * 22;
+            var puffY = -66 - puff * 22;
+            var puffRadius = 2 + puff * 7;
+            ctx.fillStyle = 'rgba(238, 226, 203, ' + ((1 - puff) * 0.18).toFixed(3) + ')';
             ctx.beginPath();
             ctx.arc(puffX, puffY, puffRadius, 0, Math.PI * 2);
             ctx.fill();
         }
 
-        [[-20, -15.5], [16, -15.5], [-20, 15.5], [16, 15.5]].forEach(function (wheel) {
-            ctx.fillStyle = '#1b130c';
-            ctx.beginPath();
-            ctx.arc(wheel[0], wheel[1], 4.6, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.strokeStyle = 'rgba(199, 154, 74, 0.7)';
-            ctx.lineWidth = 0.8;
-            ctx.beginPath();
-            ctx.arc(wheel[0], wheel[1], 3.1, 0, Math.PI * 2);
-            ctx.stroke();
-
-            for (var spoke = 0; spoke < 4; spoke += 1) {
-                var spokeAngle = spoke * (Math.PI / 2);
-                ctx.beginPath();
-                ctx.moveTo(wheel[0], wheel[1]);
-                ctx.lineTo(wheel[0] + Math.cos(spokeAngle) * 3, wheel[1] + Math.sin(spokeAngle) * 3);
-                ctx.stroke();
-            }
-
-            ctx.fillStyle = '#c79a4a';
-            ctx.beginPath();
-            ctx.arc(wheel[0], wheel[1], 1.2, 0, Math.PI * 2);
-            ctx.fill();
-        });
-
-        ctx.save();
-        ctx.shadowColor = 'rgba(169, 95, 53, 0.35)';
-        ctx.shadowBlur = 14;
-        var body = ctx.createLinearGradient(0, -14, 0, 14);
-        body.addColorStop(0, '#d99a5b');
-        body.addColorStop(0.35, '#b46a3a');
-        body.addColorStop(0.7, '#8a4a28');
-        body.addColorStop(1, '#5e3018');
-        ctx.fillStyle = body;
-        ctx.strokeStyle = 'rgba(199, 154, 74, 0.38)';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(34, 0);
-        ctx.bezierCurveTo(30, -6, 24, -10, 14, -12);
-        ctx.lineTo(-2, -12);
-        ctx.bezierCurveTo(-16, -12, -26, -10, -30, -7);
-        ctx.lineTo(-33, -5);
-        ctx.lineTo(-34, 0);
-        ctx.lineTo(-33, 5);
-        ctx.lineTo(-30, 7);
-        ctx.bezierCurveTo(-26, 10, -16, 12, -2, 12);
-        ctx.lineTo(14, 12);
-        ctx.bezierCurveTo(24, 10, 30, 6, 34, 0);
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-        ctx.restore();
-
-        ctx.fillStyle = 'rgba(199, 154, 74, 0.75)';
-        [[-26, -8], [-16, -9], [-6, -9.5], [4, -9.5], [14, -8]].forEach(function (rivet) {
-            ctx.beginPath();
-            ctx.arc(rivet[0], rivet[1], 0.8, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.beginPath();
-            ctx.arc(rivet[0], -rivet[1], 0.8, 0, Math.PI * 2);
-            ctx.fill();
-        });
-
-        ctx.strokeStyle = 'rgba(239, 196, 120, 0.28)';
-        ctx.lineWidth = 0.8;
-        ctx.beginPath();
-        ctx.moveTo(-30, 0);
-        ctx.lineTo(26, 0);
-        ctx.stroke();
-
-        ctx.fillStyle = '#6b451f';
-        ctx.strokeStyle = 'rgba(199, 154, 74, 0.7)';
-        ctx.lineWidth = 0.8;
-        ctx.beginPath();
-        ctx.arc(-18, 0, 4.2, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.arc(-18, 0, 1.6, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(239, 196, 120, 0.6)';
-        ctx.stroke();
-
-        ctx.fillStyle = '#241a12';
-        ctx.strokeStyle = 'rgba(199, 154, 74, 0.7)';
-        ctx.beginPath();
-        ctx.arc(-28, -4, 2.8, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-        ctx.fillStyle = '#0f0a06';
-        ctx.beginPath();
-        ctx.arc(-28, -4, 1.4, 0, Math.PI * 2);
-        ctx.fill();
-
-        drawGear(ctx, 18, 0, 3.2, 6, 'rgba(199, 154, 74, 0.9)', 0.7, performance.now() / 1800);
-
-        ctx.fillStyle = 'rgba(10, 10, 14, 0.88)';
-        ctx.beginPath();
-        ctx.moveTo(-21, -11);
-        ctx.lineTo(-9, -10);
-        ctx.lineTo(-9, -7);
-        ctx.lineTo(-21, -8);
-        ctx.closePath();
-        ctx.fill();
-        ctx.beginPath();
-        ctx.moveTo(-21, 11);
-        ctx.lineTo(-9, 10);
-        ctx.lineTo(-9, 7);
-        ctx.lineTo(-21, 8);
-        ctx.closePath();
-        ctx.fill();
-
-        ctx.fillStyle = '#241a12';
-        roundRect(ctx, 27, -6, 7, 12, 2);
-        ctx.fill();
-
-        ctx.fillStyle = '#241a12';
-        roundRect(ctx, 4, -14, 4, 2, 1);
-        ctx.fill();
-        roundRect(ctx, 4, 12, 4, 2, 1);
-        ctx.fill();
-
-        ctx.fillStyle = '#241a12';
-        ctx.beginPath();
-        ctx.moveTo(12, 0);
-        ctx.bezierCurveTo(8, -6, 2, -8, -6, -7);
-        ctx.lineTo(-10, 0);
-        ctx.lineTo(-6, 7);
-        ctx.bezierCurveTo(2, 8, 8, 6, 12, 0);
-        ctx.closePath();
-        ctx.fill();
-        ctx.strokeStyle = 'rgba(199, 154, 74, 0.24)';
-        ctx.lineWidth = 1;
-        ctx.stroke();
-
-        ctx.fillStyle = 'rgba(239, 196, 120, 0.2)';
-        ctx.beginPath();
-        ctx.moveTo(12, -6);
-        ctx.lineTo(14, -1);
-        ctx.lineTo(12, 2);
-        ctx.lineTo(9, -2);
-        ctx.closePath();
-        ctx.fill();
-
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-        ctx.beginPath();
-        ctx.moveTo(20, -2);
-        ctx.lineTo(30, -1);
-        ctx.lineTo(30, 1);
-        ctx.lineTo(20, 2);
-        ctx.closePath();
-        ctx.fill();
-
-        ctx.fillStyle = '#2b1e14';
-        roundRect(ctx, -38, -14, 5, 28, 2);
-        ctx.fill();
-        ctx.strokeStyle = 'rgba(169, 95, 53, 0.35)';
-        ctx.stroke();
-        ctx.fillStyle = '#5e3018';
-        ctx.fillRect(-38, -15, 5, 2);
-        ctx.fillRect(-38, 13, 5, 2);
-        ctx.fillStyle = '#33241a';
-        ctx.fillRect(-33, -8, 3, 3);
-        ctx.fillRect(-33, 5, 3, 3);
-
-        ctx.fillStyle = '#fff3d6';
-        ctx.shadowColor = 'rgba(255, 236, 196, 0.85)';
-        ctx.shadowBlur = braking ? 4 : 10;
-        ctx.beginPath();
-        ctx.moveTo(23, -8);
-        ctx.lineTo(29, -5);
-        ctx.lineTo(27, -3);
-        ctx.lineTo(22, -6);
-        ctx.closePath();
-        ctx.fill();
-        ctx.beginPath();
-        ctx.moveTo(23, 8);
-        ctx.lineTo(29, 5);
-        ctx.lineTo(27, 3);
-        ctx.lineTo(22, 6);
-        ctx.closePath();
-        ctx.fill();
-        ctx.shadowBlur = 0;
+        drawTrainWheel(ctx, -28, -11, 11, wheelAngle);
+        drawTrainWheel(ctx, 0, -11, 11, wheelAngle + 0.4);
+        drawTrainWheel(ctx, 24, -8, 8, wheelAngle + 0.8);
 
         ctx.strokeStyle = 'rgba(199, 154, 74, 0.65)';
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(-28, -10);
+        ctx.lineTo(0, -10);
+        ctx.lineTo(24, -10);
+        ctx.stroke();
+
+        ctx.fillStyle = '#8a4a28';
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.6)';
+        ctx.lineWidth = 1;
+        roundRect(ctx, -52, -52, 32, 38, 4);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#241a12';
+        roundRect(ctx, -54, -56, 36, 6, 3);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = 'rgba(242, 184, 107, 0.6)';
+        roundRect(ctx, -46, -44, 14, 12, 2);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.5)';
+        ctx.stroke();
+
+        var boiler = ctx.createLinearGradient(0, -44, 0, -18);
+        boiler.addColorStop(0, '#c79a4a');
+        boiler.addColorStop(0.45, '#a9742b');
+        boiler.addColorStop(1, '#6b451f');
+        ctx.fillStyle = boiler;
+        ctx.strokeStyle = 'rgba(239, 196, 120, 0.55)';
+        roundRect(ctx, -22, -44, 50, 26, 6);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.55)';
+        ctx.lineWidth = 1;
+        [-12, 2, 16].forEach(function (bandX) {
+            ctx.beginPath();
+            ctx.moveTo(bandX, -44);
+            ctx.lineTo(bandX, -18);
+            ctx.stroke();
+        });
+
+        ctx.fillStyle = 'rgba(199, 154, 74, 0.8)';
+        for (var rivet = 0; rivet < 5; rivet += 1) {
+            ctx.beginPath();
+            ctx.arc(-16 + rivet * 9, -42, 0.8, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        ctx.fillStyle = '#8a5a2b';
+        ctx.strokeStyle = 'rgba(239, 196, 120, 0.6)';
+        ctx.beginPath();
+        ctx.arc(2, -46, 5, Math.PI, 0);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#2b1e14';
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.65)';
+        roundRect(ctx, 18, -66, 8, 22, 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.ellipse(22, -66, 5.5, 2.5, 0, 0, Math.PI * 2);
+        ctx.fillStyle = '#120d08';
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(28, -18);
+        ctx.lineTo(42, 0);
+        ctx.lineTo(28, 0);
+        ctx.closePath();
+        ctx.fillStyle = '#a9742b';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(239, 196, 120, 0.55)';
+        ctx.stroke();
+
+        ctx.fillStyle = '#241a12';
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.65)';
+        ctx.beginPath();
+        ctx.arc(28, -36, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.globalCompositeOperation = 'lighter';
+        var beam = ctx.createLinearGradient(30, -36, 112, -36);
+        beam.addColorStop(0, 'rgba(255, 236, 196, 0.2)');
+        beam.addColorStop(1, 'rgba(255, 236, 196, 0)');
+        ctx.fillStyle = beam;
+        ctx.beginPath();
+        ctx.moveTo(30, -38);
+        ctx.lineTo(112, -54);
+        ctx.lineTo(112, -18);
+        ctx.lineTo(30, -34);
+        ctx.closePath();
+        ctx.fill();
+        ctx.globalCompositeOperation = 'source-over';
+
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.8)';
         ctx.lineWidth = 1;
         ctx.beginPath();
-        ctx.moveTo(2, -12);
-        ctx.lineTo(6, -20);
+        ctx.moveTo(-38, -52);
+        ctx.lineTo(-36, -58);
         ctx.stroke();
-        ctx.fillStyle = 'rgba(199, 154, 74, 0.95)';
+        ctx.fillStyle = '#c79a4a';
         ctx.shadowColor = 'rgba(199, 154, 74, 0.8)';
         ctx.shadowBlur = 6;
         ctx.beginPath();
-        ctx.arc(6, -20, 1.6, 0, Math.PI * 2);
+        ctx.arc(-36, -58, 1.6, 0, Math.PI * 2);
         ctx.fill();
         ctx.shadowBlur = 0;
 
-        ctx.fillStyle = braking ? 'rgba(143, 47, 47, 1)' : 'rgba(143, 47, 47, 0.8)';
-        ctx.shadowColor = 'rgba(143, 47, 47, 0.85)';
-        ctx.shadowBlur = braking ? 14 : 6;
-        ctx.fillRect(-35, -9, 3, 5);
-        ctx.fillRect(-35, 4, 3, 5);
-        ctx.shadowBlur = 0;
-
         if (braking) {
-            ctx.fillStyle = 'rgba(143, 47, 47, 0.12)';
+            ctx.fillStyle = 'rgba(143, 47, 47, 0.18)';
             ctx.beginPath();
-            ctx.ellipse(-42, 0, 12, 10, 0, 0, Math.PI * 2);
+            ctx.arc(-28, -8, 12, 0, Math.PI * 2);
             ctx.fill();
+            ctx.fillStyle = '#8f2f2f';
+            ctx.fillRect(-32, -3, 7, 4);
         }
 
         ctx.restore();
     }
 
+    function trainGeometry() {
+        var scale = clamp(roadW / 700, 0.78, 1.08);
+        var cx = roadW * 0.30;
+        var trackY = roadH * 0.78;
+        return {
+            scale: scale,
+            cx: cx,
+            trackY: trackY,
+            anchorX: cx - 36 * scale,
+            anchorY: trackY - 58 * scale,
+            actionX: cx - 26 * scale,
+            actionY: trackY - 34 * scale
+        };
+    }
+
     function brainGeometry() {
-        var cw = clamp(roadW * 0.40, 150, 190);
-        var ch = clamp(roadH * 0.36, 78, 98);
+        var cw = clamp(roadW * 0.36, 150, 190);
+        var ch = clamp(roadH * 0.48, 96, 128);
         var cx = roadW - cw - 10;
         var cy = 8;
         return {
@@ -1193,16 +1212,12 @@
             ch: ch,
             cx: cx,
             cy: cy,
-            inputX: cx + 1,
-            inputY: cy + ch * 0.60,
-            routerX: cx + cw * 0.52,
-            routerY: cy + ch * 0.55,
-            stackX: cx + 12,
-            stackY: cy + 24,
-            stackW: cw * 0.26,
-            expertX: cx + cw * 0.80,
-            expertY: cy + 22,
-            expertGap: (ch - 34) / 8
+            inputX: cx + 2,
+            inputY: cy + ch * 0.64,
+            routerX: cx + cw * 0.56,
+            routerY: cy + ch * 0.58,
+            actionX: cx + 10,
+            actionY: cy + ch - 10
         };
     }
 
@@ -1237,14 +1252,13 @@
     }
 
     function forwardPathGeometry() {
-        var carCX = carX();
-        var carCY = (state.carY || laneY(1)) - 16;
+        var train = trainGeometry();
         var target = brainTarget();
         return {
-            x0: carCX + 4,
-            y0: carCY,
-            cx: (carCX + target.x) / 2,
-            cy: Math.min(carCY, target.y) - 34,
+            x0: train.anchorX,
+            y0: train.anchorY,
+            cx: (train.anchorX + target.x) / 2,
+            cy: Math.min(train.anchorY, target.y) - 30,
             x1: target.x,
             y1: target.y
         };
@@ -1252,17 +1266,14 @@
 
     function actionPathGeometry() {
         var g = brainGeometry();
-        var carCX = carX();
-        var carCY = state.carY || laneY(1);
-        var startX = g.cx + 8;
-        var startY = g.cy + g.ch - 8;
+        var train = trainGeometry();
         return {
-            x0: startX,
-            y0: startY,
-            cx: (startX + carCX) / 2,
-            cy: Math.max(startY, carCY) + 58,
-            x1: carCX + 10,
-            y1: carCY
+            x0: g.actionX,
+            y0: g.actionY,
+            cx: (g.actionX + train.actionX) / 2,
+            cy: Math.max(g.actionY, train.actionY) + 45,
+            x1: train.actionX,
+            y1: train.actionY
         };
     }
 
@@ -1274,14 +1285,14 @@
         ctx.lineWidth = 1;
         ctx.setLineDash([4, 7]);
 
-        ctx.strokeStyle = 'rgba(199, 154, 74, 0.2)';
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.22)';
         ctx.lineDashOffset = -state.roadOffset * 0.4;
         ctx.beginPath();
         ctx.moveTo(forward.x0, forward.y0);
         ctx.quadraticCurveTo(forward.cx, forward.cy, forward.x1, forward.y1);
         ctx.stroke();
 
-        ctx.strokeStyle = 'rgba(242, 184, 107, 0.2)';
+        ctx.strokeStyle = 'rgba(169, 95, 53, 0.22)';
         ctx.lineDashOffset = state.roadOffset * 0.4;
         ctx.beginPath();
         ctx.moveTo(action.x0, action.y0);
@@ -1290,15 +1301,15 @@
         ctx.restore();
 
         drawArrowhead(ctx, forward, 0.84, 'rgba(199, 154, 74, 0.55)');
-        drawArrowhead(ctx, action, 0.84, 'rgba(242, 184, 107, 0.6)');
+        drawArrowhead(ctx, action, 0.84, 'rgba(169, 95, 53, 0.65)');
 
         var forwardMid = quadPoint(forward, 0.30);
         var actionMid = quadPoint(action, 0.45);
         ctx.save();
         ctx.font = '6px "IBM Plex Mono", ui-monospace, monospace';
-        ctx.fillStyle = 'rgba(199, 154, 74, 0.55)';
+        ctx.fillStyle = 'rgba(199, 154, 74, 0.6)';
         ctx.fillText('uplink', forwardMid.x, forwardMid.y - 6);
-        ctx.fillStyle = 'rgba(242, 184, 107, 0.6)';
+        ctx.fillStyle = 'rgba(169, 95, 53, 0.7)';
         ctx.fillText('decision', actionMid.x, actionMid.y + 10);
         ctx.restore();
     }
@@ -1306,6 +1317,7 @@
     function drawActions(ctx) {
         var now = performance.now();
         var path = actionPathGeometry();
+        var train = trainGeometry();
 
         state.actions.forEach(function (action) {
             var elapsed = now - action.start;
@@ -1324,10 +1336,7 @@
             ctx.stroke();
 
             ctx.globalAlpha = 1;
-            ctx.fillStyle = color;
-            ctx.shadowColor = color;
-            ctx.shadowBlur = 8;
-            drawGear(ctx, point.x, point.y, 3.2, 6, color, 0.9, now / 250);
+            drawGear(ctx, point.x, point.y, 3.4, 6, color, 0.9, now / 250);
             ctx.restore();
 
             if (t >= 1) {
@@ -1339,12 +1348,43 @@
                     ctx.strokeStyle = color;
                     ctx.lineWidth = 1.5;
                     ctx.beginPath();
-                    ctx.arc(carX() + 6, state.carY || laneY(1), 10 + after * 0.04, 0, Math.PI * 2);
+                    ctx.arc(train.actionX, train.actionY, 10 + after * 0.04, 0, Math.PI * 2);
                     ctx.stroke();
                     ctx.restore();
                 }
             }
         });
+    }
+
+    function drawDrum(ctx, x, y, radius, angle) {
+        ctx.fillStyle = 'rgba(42, 31, 21, 0.95)';
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.8)';
+        ctx.lineWidth = 1.1;
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.4)';
+        ctx.lineWidth = 0.7;
+        ctx.beginPath();
+        ctx.arc(x, y, radius * 0.62, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.strokeStyle = 'rgba(239, 196, 120, 0.75)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + Math.cos(angle) * radius * 0.7, y + Math.sin(angle) * radius * 0.7);
+        ctx.stroke();
+
+        ctx.fillStyle = '#c79a4a';
+        ctx.beginPath();
+        ctx.arc(x, y, radius * 0.18, 0, Math.PI * 2);
+        ctx.fill();
     }
 
     function drawBrain(ctx) {
@@ -1353,165 +1393,130 @@
         var cy = g.cy;
         var cw = g.cw;
         var ch = g.ch;
-        var carCX = carX();
-        var carCY = state.carY || laneY(1);
         var now = performance.now();
-        var compact = ch < 84;
-        var blockGap = compact ? 11 : 14;
-        var blockH = compact ? 7 : 9;
-        var blockCount = 3;
-
-        drawLoopPaths(ctx);
-
-        ctx.fillStyle = 'rgba(242, 184, 107, 0.35)';
-        var pins = 7;
-        for (var p = 1; p < pins; p += 1) {
-            var pinX = cx + (cw / pins) * p;
-            ctx.fillRect(pinX - 1, cy - 4, 3, 3);
-            ctx.fillRect(pinX - 1, cy + ch + 1, 3, 3);
-        }
+        var pulse = reduceMotion.matches ? 0.5 : 0.5 + 0.5 * Math.sin(now / 350);
 
         ctx.save();
-        ctx.shadowColor = 'rgba(199, 154, 74, 0.14)';
-        ctx.shadowBlur = 18;
-        ctx.fillStyle = 'rgba(42, 31, 21, 0.93)';
-        ctx.strokeStyle = state.spotlight === 'rtmoe' ? 'rgba(199, 154, 74, 0.8)' : 'rgba(199, 154, 74, 0.45)';
-        ctx.lineWidth = 1;
-        roundRect(ctx, cx, cy, cw, ch, 9);
+        ctx.shadowColor = 'rgba(169, 116, 43, 0.18)';
+        ctx.shadowBlur = 16;
+        ctx.fillStyle = 'rgba(42, 31, 21, 0.96)';
+        ctx.strokeStyle = state.spotlight === 'rtmoe' ? 'rgba(239, 196, 120, 0.85)' : 'rgba(199, 154, 74, 0.55)';
+        ctx.lineWidth = 1.2;
+        roundRect(ctx, cx, cy, cw, ch, 8);
         ctx.fill();
         ctx.stroke();
         ctx.restore();
 
-        ctx.strokeStyle = 'rgba(199, 154, 74, 0.14)';
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.16)';
         ctx.lineWidth = 1;
         roundRect(ctx, cx + 4, cy + 4, cw - 8, ch - 8, 6);
         ctx.stroke();
 
-        ctx.fillStyle = 'rgba(199, 154, 74, 0.7)';
-        [[cx + cw - 8, cy + 8], [cx + 8, cy + ch - 8], [cx + cw - 8, cy + ch - 8]].forEach(function (rivet) {
+        ctx.strokeStyle = 'rgba(239, 196, 120, 0.05)';
+        ctx.lineWidth = 1;
+        for (var grain = 0; grain < 6; grain += 1) {
+            var grainX = cx + 8 + grain * (cw - 16) / 5;
             ctx.beginPath();
-            ctx.arc(rivet[0], rivet[1], 1.1, 0, Math.PI * 2);
+            ctx.moveTo(grainX, cy + 10);
+            ctx.lineTo(grainX, cy + ch - 10);
+            ctx.stroke();
+        }
+
+        ctx.fillStyle = 'rgba(199, 154, 74, 0.8)';
+        [[cx + 9, cy + 9], [cx + cw - 9, cy + 9], [cx + 9, cy + ch - 9], [cx + cw - 9, cy + ch - 9]].forEach(function (rivet) {
+            ctx.beginPath();
+            ctx.arc(rivet[0], rivet[1], 1.2, 0, Math.PI * 2);
             ctx.fill();
         });
 
-        ctx.fillStyle = 'rgba(42, 31, 21, 0.95)';
-        ctx.strokeStyle = 'rgba(199, 154, 74, 0.4)';
-        ctx.beginPath();
-        ctx.arc(cx + 9, cy + 9, 3, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(199, 154, 74, 0.14)';
+        roundRect(ctx, cx + 14, cy + 8, cw - 28, 16, 3);
         ctx.fill();
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.55)';
         ctx.stroke();
-
         ctx.fillStyle = 'rgba(239, 196, 120, 0.95)';
         ctx.font = '9px Cinzel, Georgia, serif';
-        ctx.fillText('LLM · MoE', cx + 16, cy + 15);
-        ctx.fillStyle = 'rgba(199, 154, 74, 0.85)';
+        ctx.fillText('MoE ENGINE', cx + 20, cy + 19);
+        ctx.fillStyle = 'rgba(199, 154, 74, 0.8)';
         ctx.font = '6px "IBM Plex Mono", ui-monospace, monospace';
-        ctx.fillText('engine', cx + 70, cy + 15);
-        ctx.strokeStyle = 'rgba(199, 154, 74, 0.16)';
-        ctx.lineWidth = 0.7;
-        ctx.beginPath();
-        ctx.moveTo(cx + 16, cy + 18.5);
-        ctx.lineTo(cx + cw - 14, cy + 18.5);
-        ctx.stroke();
-
-        for (var b = 0; b < blockCount; b += 1) {
-            var by = g.stackY + b * blockGap;
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
-            ctx.strokeStyle = 'rgba(199, 154, 74, 0.25)';
-            roundRect(ctx, g.stackX, by, g.stackW, blockH, 2);
-            ctx.fill();
-            ctx.stroke();
-            for (var cell = 0; cell < 3; cell += 1) {
-                ctx.fillStyle = 'rgba(199, 154, 74, ' + (0.15 + cell * 0.08).toFixed(2) + ')';
-                ctx.fillRect(g.stackX + 4 + cell * 9, by + 2, 4, Math.max(2, blockH - 4));
-            }
-            drawGear(ctx, g.stackX + g.stackW - 4, by + blockH / 2, 3.2, 6, 'rgba(199, 154, 74, 0.7)', 0.6, now / 1600 + b * 0.4);
-        }
-        ctx.fillStyle = 'rgba(140, 120, 94, 0.8)';
-        ctx.font = '6px "IBM Plex Mono", ui-monospace, monospace';
-        ctx.fillText('transformer ×3', g.stackX, g.stackY + blockCount * blockGap + 2);
-
-        ctx.strokeStyle = 'rgba(199, 154, 74, 0.35)';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(g.stackX + g.stackW, g.stackY + blockH / 2);
-        ctx.lineTo(g.routerX - 9, g.routerY);
-        ctx.stroke();
-
-        ctx.strokeStyle = 'rgba(199, 154, 74, 0.22)';
-        ctx.beginPath();
-        ctx.moveTo(g.inputX + 3, g.inputY);
-        ctx.lineTo(g.stackX, g.stackY + (blockCount - 1) * blockGap + blockH / 2);
-        ctx.stroke();
-
-        var pulse = reduceMotion.matches ? 0.5 : 0.5 + 0.5 * Math.sin(now / 300);
-        ctx.strokeStyle = 'rgba(199, 154, 74, ' + (0.08 + pulse * 0.1).toFixed(3) + ')';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.arc(g.routerX, g.routerY, 14 + pulse * 3, 0, Math.PI * 2);
-        ctx.stroke();
-
-        drawGear(ctx, g.routerX, g.routerY, 10.5, 8, 'rgba(239, 196, 120, 0.82)', 1, now / 1600);
-        ctx.fillStyle = 'rgba(42, 31, 21, 0.8)';
-        ctx.beginPath();
-        ctx.arc(g.routerX, g.routerY, 2.4, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = 'rgba(199, 154, 74, 0.85)';
-        ctx.font = '6px "IBM Plex Mono", ui-monospace, monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText('router', g.routerX, g.routerY - 16);
+        ctx.textAlign = 'right';
+        ctx.fillText('LLM', cx + cw - 20, cy + 19);
         ctx.textAlign = 'left';
 
+        var drumX = cx + 28;
+        var drumYs = [cy + ch * 0.36, cy + ch * 0.55, cy + ch * 0.74];
+        drumYs.forEach(function (drumY, drumIndex) {
+            drawDrum(ctx, drumX, drumY, 7, -0.6 + drumIndex * 0.6);
+            ctx.strokeStyle = drumIndex === 1 ? 'rgba(239, 196, 120, 0.55)' : 'rgba(169, 95, 53, 0.45)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(drumX + 7, drumY);
+            ctx.bezierCurveTo(drumX + 22, drumY, g.routerX - 24, g.routerY, g.routerX - 13, g.routerY);
+            ctx.stroke();
+        });
+        ctx.fillStyle = 'rgba(199, 154, 74, 0.7)';
+        ctx.font = '6px "IBM Plex Mono", ui-monospace, monospace';
+        ctx.fillText('transformer ×3', cx + 12, cy + ch * 0.27);
+
+        drawGear(ctx, g.routerX, g.routerY, 13, 10, 'rgba(239, 196, 120, 0.85)', 1.1, now / 1700);
+        ctx.fillStyle = 'rgba(42, 31, 21, 0.85)';
+        ctx.beginPath();
+        ctx.arc(g.routerX, g.routerY, 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = 'rgba(199, 154, 74, 0.8)';
+        ctx.font = '6px "IBM Plex Mono", ui-monospace, monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('router', g.routerX, g.routerY - 20);
+        ctx.textAlign = 'left';
+
+        var arcRadius = 36;
         for (var i = 0; i < EXPERTS; i += 1) {
-            var padY = g.expertY + i * g.expertGap;
+            var angle = (-80 + (160 / 7) * i) * Math.PI / 180;
+            var vx = g.routerX + Math.cos(angle) * arcRadius;
+            var vy = g.routerY + Math.sin(angle) * arcRadius;
             var resident = state.residents.indexOf(i) !== -1;
             var selected = state.selected.indexOf(i) !== -1;
 
-            ctx.strokeStyle = selected ? 'rgba(255, 255, 255, 0.72)' : (resident ? COLORS[i] : 'rgba(255, 255, 255, 0.1)');
-            ctx.globalAlpha = selected ? 0.9 : (resident ? 0.32 : 0.12);
-            ctx.lineWidth = selected ? 1.3 : 0.8;
+            ctx.strokeStyle = selected ? 'rgba(255, 246, 224, 0.8)' : (resident ? COLORS[i] : 'rgba(255, 236, 196, 0.1)');
+            ctx.globalAlpha = selected ? 0.9 : (resident ? 0.35 : 0.12);
+            ctx.lineWidth = selected ? 1.2 : 0.8;
             ctx.beginPath();
-            ctx.moveTo(g.routerX + 8, g.routerY);
-            ctx.bezierCurveTo(g.routerX + 22, g.routerY, g.expertX - 16, padY, g.expertX - 4, padY);
+            ctx.moveTo(g.routerX + Math.cos(angle) * 13, g.routerY + Math.sin(angle) * 13);
+            ctx.lineTo(vx, vy);
             ctx.stroke();
             ctx.globalAlpha = 1;
 
-            drawValve(ctx, g.expertX, padY, 4.2, COLORS[i], resident, selected, pulse);
+            drawValve(ctx, vx, vy, 4.2, COLORS[i], resident, selected, pulse);
         }
 
-        ctx.fillStyle = 'rgba(140, 120, 94, 0.8)';
+        ctx.fillStyle = 'rgba(199, 154, 74, 0.7)';
         ctx.font = '6px "IBM Plex Mono", ui-monospace, monospace';
         ctx.textAlign = 'right';
-        ctx.fillText('experts', g.expertX + 6, g.expertY - 5);
-        ctx.textAlign = 'left';
+        ctx.fillText('experts', cx + cw - 12, cy + ch - 8);
 
-        ctx.strokeStyle = 'rgba(169, 95, 53, 0.65)';
-        ctx.lineWidth = 0.8;
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.7)';
+        ctx.lineWidth = 1;
         ctx.beginPath();
-        ctx.arc(cx + 8, cy + ch - 8, 4.2, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.fillStyle = 'rgba(169, 95, 53, 0.95)';
-        ctx.beginPath();
-        ctx.arc(cx + 8, cy + ch - 8, 1.8, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = 'rgba(199, 154, 74, 0.75)';
-        ctx.font = '6px "IBM Plex Mono", ui-monospace, monospace';
-        ctx.fillText('action', cx + 14, cy + ch - 6);
-
-        ctx.strokeStyle = 'rgba(199, 154, 74, 0.65)';
-        ctx.beginPath();
-        ctx.arc(g.inputX + 2, g.inputY, 4, 0, Math.PI * 2);
+        ctx.arc(g.inputX, g.inputY, 4, 0, Math.PI * 2);
         ctx.stroke();
         ctx.fillStyle = 'rgba(239, 196, 120, 0.95)';
         ctx.beginPath();
-        ctx.arc(g.inputX + 2, g.inputY, 1.7, 0, Math.PI * 2);
+        ctx.arc(g.inputX, g.inputY, 1.7, 0, Math.PI * 2);
         ctx.fill();
-
-        ctx.fillStyle = 'rgba(199, 154, 74, 0.85)';
-        ctx.font = '6px "IBM Plex Mono", ui-monospace, monospace';
-        ctx.textAlign = 'right';
-        ctx.fillText('tokens', g.inputX - 4, g.inputY - 5);
+        ctx.fillStyle = 'rgba(199, 154, 74, 0.75)';
         ctx.textAlign = 'left';
+        ctx.fillText('tokens', g.inputX + 8, g.inputY - 5);
+
+        ctx.strokeStyle = 'rgba(169, 95, 53, 0.75)';
+        ctx.beginPath();
+        ctx.arc(g.actionX, g.actionY, 4.2, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(169, 95, 53, 0.95)';
+        ctx.beginPath();
+        ctx.arc(g.actionX, g.actionY, 1.8, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = 'rgba(199, 154, 74, 0.75)';
+        ctx.fillText('action', g.actionX + 8, g.actionY + 4);
 
         if (state.spotlight === 'rtmoe') {
             ctx.save();
@@ -1586,11 +1591,11 @@
         ctx.save();
         ctx.globalAlpha = alpha;
         ctx.fillStyle = 'rgba(42, 31, 21, 0.88)';
-        ctx.strokeStyle = 'rgba(199, 154, 74, 0.45)';
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.55)';
         roundRect(ctx, 10, 10, 194, 24, 5);
         ctx.fill();
         ctx.stroke();
-        ctx.fillStyle = 'rgba(199, 154, 74, 0.95)';
+        ctx.fillStyle = 'rgba(239, 196, 120, 0.95)';
         ctx.font = '9px "IBM Plex Mono", ui-monospace, monospace';
         ctx.fillText('INSTRUCTION · ' + state.toast.text, 18, 26);
         ctx.restore();
@@ -1599,50 +1604,37 @@
     function drawScene(now) {
         if (!roadW || !roadH) return;
         var ctx = roadCtx;
-        var w = roadW;
-        var h = roadH;
-        var top = h * 0.30;
-        var bottom = h * 0.78;
+        var trackY = roadH * 0.78;
 
-        ctx.clearRect(0, 0, w, h);
-        var background = ctx.createLinearGradient(0, 0, 0, h);
-        background.addColorStop(0, '#1c140d');
-        background.addColorStop(0.45, '#332417');
-        background.addColorStop(1, '#140f0a');
-        ctx.fillStyle = background;
-        ctx.fillRect(0, 0, w, h);
-
-        drawBuildings(ctx);
-        drawClockTower(ctx, roadH * 0.30);
-        drawRoad(ctx);
-        drawStreetlights(ctx, top, bottom);
-        drawRoute(ctx);
-        drawBrain(ctx);
-        drawCar(ctx);
+        ctx.clearRect(0, 0, roadW, roadH);
+        drawBackdrop(ctx, trackY);
+        drawTrack(ctx, trackY);
+        drawSignals(ctx, trackY);
+        drawLoopPaths(ctx);
+        drawLocomotive(ctx);
 
         if (state.spotlight === 'autoware') {
-            var ringScale = clamp(roadW / 700, 0.78, 1.05);
+            var train = trainGeometry();
             ctx.save();
-            ctx.strokeStyle = 'rgba(199, 154, 74, 0.78)';
+            ctx.strokeStyle = 'rgba(199, 154, 74, 0.65)';
             ctx.lineWidth = 1;
             ctx.setLineDash([3, 4]);
-            ctx.beginPath();
-            ctx.arc(carX(), state.carY || laneY(1), 38 * ringScale, 0, Math.PI * 2);
+            roundRect(ctx, train.cx - 58 * train.scale, train.trackY - 72 * train.scale, 104 * train.scale, 80 * train.scale, 10);
             ctx.stroke();
             ctx.restore();
         }
 
+        drawBrain(ctx);
         drawActions(ctx);
         drawTokens(ctx);
         drawToast(ctx, now);
 
         if (state.flash > 0.02) {
-            var vignette = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.18, w / 2, h / 2, Math.max(w, h) * 0.62);
+            var vignette = ctx.createRadialGradient(roadW / 2, roadH / 2, Math.min(roadW, roadH) * 0.18, roadW / 2, roadH / 2, Math.max(roadW, roadH) * 0.62);
             vignette.addColorStop(0, 'rgba(143, 47, 47, 0)');
             vignette.addColorStop(1, 'rgba(143, 47, 47, ' + (0.22 * state.flash).toFixed(3) + ')');
             ctx.fillStyle = vignette;
-            ctx.fillRect(0, 0, w, h);
-
+            ctx.fillRect(0, 0, roadW, roadH);
         }
     }
 
@@ -1838,7 +1830,7 @@
         chartCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
         buildScenery();
-        state.carY = laneY(state.targetLane);
+        state.carY = trainGeometry().anchorY;
         drawChart();
         drawScene(performance.now());
         if (paperPop && !paperPop.hidden && activeAnchor) {
@@ -1921,7 +1913,7 @@
         state.roadOffset = 0;
         state.speed = 1;
         state.targetLane = INSTRUCTIONS.cruise.lane;
-        state.carY = laneY(state.targetLane);
+        state.carY = trainGeometry().anchorY;
         state.flash = 0;
         state.toast = null;
         state.rng = mulberry32(20261116);
@@ -2030,7 +2022,7 @@
 
             if (!reduceMotion.matches) {
                 state.roadOffset += dt * 0.05 * state.speed;
-                state.carY += (laneY(state.targetLane) - state.carY) * 0.08;
+                state.carY = trainGeometry().anchorY;
                 state.tokens.forEach(function (token) {
                     token.age = Math.min(1, token.age + dt / TICK_MS);
                 });
@@ -2045,7 +2037,7 @@
                     : (state.lastLatency > state.deadline ? 0.35 : 1);
                 state.speed += (targetSpeed - state.speed) * 0.06;
             } else {
-                state.carY = laneY(state.targetLane);
+                state.carY = trainGeometry().anchorY;
             }
         }
 
@@ -2068,7 +2060,7 @@
     }
 
     reduceMotion.addEventListener('change', function () {
-        state.carY = laneY(state.targetLane);
+        state.carY = trainGeometry().anchorY;
         drawScene(performance.now());
     });
 })();

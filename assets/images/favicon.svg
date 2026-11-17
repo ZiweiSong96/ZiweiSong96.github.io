@@ -1,6 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Ziwei Song">
-  <rect width="64" height="64" rx="14" fill="#070b10"/>
-  <rect x="1.5" y="1.5" width="61" height="61" rx="12.5" fill="none" stroke="#3ee6c0" stroke-opacity=".35"/>
-  <path d="M17 21.5 L22 21.5 L22 26.5 L17 26.5 Z" fill="#3ee6c0" opacity=".9"/>
-  <text x="34" y="42" text-anchor="middle" font-family="'JetBrains Mono', ui-monospace, monospace" font-size="24" font-weight="700" fill="#3ee6c0">ZS</text>
+  <rect width="64" height="64" rx="14" fill="#2b1e14"/>
+  <rect x="1.5" y="1.5" width="61" height="61" rx="12.5" fill="none" stroke="#c79a4a" stroke-opacity=".35"/>
+  <path d="M32.00,7.00 L38.18,12.98 L46.69,11.77 L48.18,20.24 L55.78,24.27 L52.00,32.00 L55.78,39.73 L48.18,43.76 L46.69,52.23 L38.18,51.02 L32.00,57.00 L25.82,51.02 L17.31,52.23 L15.82,43.76 L8.22,39.73 L12.00,32.00 L8.22,24.27 L15.82,20.24 L17.31,11.77 L25.82,12.98 Z" fill="#a9742b" stroke="#c79a4a" stroke-width="1.2" stroke-linejoin="round"/>
+  <circle cx="32" cy="32" r="13" fill="#2b1e14" stroke="#c79a4a" stroke-width="1.1"/>
+  <text x="32" y="36.5" text-anchor="middle" font-family="Georgia, serif" font-size="12" font-weight="700" fill="#efc478">ZS</text>
 </svg>
