@@ -42,6 +42,12 @@ The locomotive, MoE engine cabinet and latency chart are paper hotspots: hover o
 them (and the `Earlier work` chips) to open the publication card. Paper metadata lives in
 the `PAPERS` object in `assets/js/deadline-drive.js`.
 
+## Publications
+
+Publication cards use first-page thumbnails generated from the authors' PDFs.
+The PDFs themselves are not hosted on this site; cards link to DOI landing pages
+instead of direct PDF downloads.
+
 ## Editing content
 
 - **Profile / bio / education / awards**: `_data/profile.yml`

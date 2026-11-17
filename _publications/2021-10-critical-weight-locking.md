@@ -9,12 +9,11 @@ pub_last: ' <span class="badge badge-pill badge-publication badge-wip">WIP</span
 abstract: >-
   A critical-weight-based locking scheme that protects DNN intellectual
   property on resource-constrained edge devices.
+cover: /assets/images/covers/codes-isss-2021-wip-critical-weight.webp
 authors:
   - Ziwei Song
   - Wei Jiang
   - Jinyu Zhan
   - Xiangyu Wen
   - Chen Bian
-# links:
-#   Paper: https://doi.org/...
 ---

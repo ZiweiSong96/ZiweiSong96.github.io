@@ -26,6 +26,7 @@ portrait_url: "/assets/images/photos/avatar-v2.webp"
 research_interests:
   - "Real-Time Scheduling for MoE Inference"
   - "Real-Time LLM Agent Scheduling"
+  - "ROS 2 Real-Time Robotics"
   - "LLM Agents for OS Kernel Formal Verification"
   - "Autonomous Driving Systems"
   - "Edge Intelligence"
@@ -40,7 +41,7 @@ short_bio: >-
     systems and AI: making large-model inference — especially mixture-of-experts — predictable under tight
     memory and latency budgets, and building autonomous driving systems that can be reconfigured on the fly.
     More recently, I have been exploring real-time scheduling of LLM agents and LLM agents for OS-kernel
-    formal verification.
+    formal verification. I have also worked on real-time task execution in ROS 2 robotic systems.
   </p>
   <p>
     Prior to my Ph.D., I received my B.S. and M.S. degrees in Software Engineering from the

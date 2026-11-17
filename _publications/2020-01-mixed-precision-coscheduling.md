@@ -9,6 +9,7 @@ pub_last: ' <span class="badge badge-pill badge-publication">Journal</span>'
 abstract: >-
   Co-scheduling of mixed-precision neural network accelerators for
   real-time multitasking workloads.
+cover: /assets/images/covers/jsa-2020-coscheduling.webp
 authors:
   - Wei Jiang
   - Ziwei Song
@@ -16,6 +17,6 @@ authors:
   - Zhiyuan He
   - Xiangyu Wen
   - Ke Jiang
-# links:
-#   Paper: https://doi.org/...
+links:
+  DOI: https://doi.org/10.1016/j.sysarc.2020.101775
 ---

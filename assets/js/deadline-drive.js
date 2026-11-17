@@ -89,6 +89,13 @@
             desc: 'Keeps the right experts resident under a tight memory budget so decoding stays within its deadline.',
             href: '/publications/#year-2026'
         },
+        ater: {
+            topic: 'ROS 2 real-time robotics',
+            title: 'ATER: Adaptive Task Execution Rate Regulation for Enhanced Real-Time Performance in ROS 2',
+            meta: 'RTCSA 2025 · Conference',
+            desc: 'Regulates ROS 2 task execution rates so robot task chains stay responsive under real-time constraints.',
+            href: '/publications/#year-2025'
+        },
         latency: {
             topic: 'Probabilistic latency',
             title: 'Latency analysis for real-time MoE inference',
@@ -1002,6 +1009,139 @@
         }
     }
 
+    function robotGeometry() {
+        var scale = clamp(roadW / 620, 0.85, 1.15);
+        return {
+            x: roadW * 0.12,
+            baseY: roadH * 0.78 - 8,
+            scale: scale
+        };
+    }
+
+    function drawRobot(ctx) {
+        var t = robotGeometry();
+        var now = performance.now();
+        var bob = Math.sin(now / 1100) * 0.6;
+        var puffPhase = (now / 1600) % 1;
+
+        ctx.save();
+        ctx.translate(t.x, t.baseY + bob);
+        ctx.scale(t.scale, t.scale);
+
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+        ctx.beginPath();
+        ctx.ellipse(0, 1, 11, 3, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.75)';
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(-4, -10);
+        ctx.lineTo(-5, -1);
+        ctx.moveTo(4, -10);
+        ctx.lineTo(5, -1);
+        ctx.stroke();
+        ctx.fillStyle = '#2b1e14';
+        roundRect(ctx, -8, -2, 6, 3, 1);
+        ctx.fill();
+        roundRect(ctx, 2, -2, 6, 3, 1);
+        ctx.fill();
+
+        var body = ctx.createLinearGradient(0, -25, 0, -8);
+        body.addColorStop(0, '#c79a4a');
+        body.addColorStop(0.55, '#a9742b');
+        body.addColorStop(1, '#6b451f');
+        ctx.fillStyle = body;
+        ctx.strokeStyle = 'rgba(239, 196, 120, 0.6)';
+        roundRect(ctx, -9, -24, 18, 16, 4);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = 'rgba(199, 154, 74, 0.85)';
+        [[-6, -21], [6, -21], [-6, -11], [6, -11]].forEach(function (rivet) {
+            ctx.beginPath();
+            ctx.arc(rivet[0], rivet[1], 0.7, 0, Math.PI * 2);
+            ctx.fill();
+        });
+
+        ctx.fillStyle = 'rgba(242, 184, 107, 0.65)';
+        roundRect(ctx, -4, -19, 8, 7, 2);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(42, 31, 21, 0.6)';
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(42, 31, 21, 0.8)';
+        ctx.font = '4px "IBM Plex Mono", ui-monospace, monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('ATER', 0, -14);
+        ctx.textAlign = 'left';
+
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.8)';
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(-9, -21);
+        ctx.lineTo(-14, -17);
+        ctx.lineTo(-14, -11);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(9, -21);
+        ctx.lineTo(14, -17);
+        ctx.lineTo(15, -10);
+        ctx.stroke();
+
+        var lanternGlow = ctx.createRadialGradient(-15, -9, 0, -15, -9, 8);
+        lanternGlow.addColorStop(0, 'rgba(255, 214, 140, 0.5)');
+        lanternGlow.addColorStop(1, 'rgba(255, 214, 140, 0)');
+        ctx.fillStyle = lanternGlow;
+        ctx.beginPath();
+        ctx.arc(-15, -9, 8, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#241a12';
+        roundRect(ctx, -18, -11, 6, 7, 1);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.7)';
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(255, 236, 196, 0.9)';
+        ctx.beginPath();
+        ctx.arc(-15, -8, 1.3, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#8a5a2b';
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.75)';
+        ctx.lineWidth = 1;
+        roundRect(ctx, -6, -34, 12, 10, 3);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(255, 236, 196, 0.95)';
+        ctx.shadowColor = 'rgba(255, 214, 140, 0.8)';
+        ctx.shadowBlur = 5;
+        ctx.beginPath();
+        ctx.arc(-2.6, -29, 1.2, 0, Math.PI * 2);
+        ctx.arc(2.6, -29, 1.2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        ctx.fillStyle = '#2b1e14';
+        roundRect(ctx, -4, -40, 8, 6, 2);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.6)';
+        ctx.stroke();
+        ctx.fillStyle = '#241a12';
+        roundRect(ctx, -4, -38, 2, 2, 0.5);
+        ctx.fill();
+
+        ctx.fillStyle = '#241a12';
+        roundRect(ctx, -9, -33, 3, 9, 1);
+        ctx.fill();
+        ctx.fillStyle = 'rgba(238, 226, 203, ' + ((1 - puffPhase) * 0.12).toFixed(3) + ')';
+        ctx.beginPath();
+        ctx.arc(-8 - puffPhase * 3, -35 - puffPhase * 7, 1.5 + puffPhase * 2.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        drawGear(ctx, 8, -22, 3, 6, 'rgba(199, 154, 74, 0.75)', 0.6, now / 1000);
+
+        ctx.restore();
+    }
+
     function drawTrainWheel(ctx, x, y, radius, angle) {
         ctx.fillStyle = '#1b130c';
         ctx.beginPath();
@@ -1612,6 +1752,7 @@
         drawSignals(ctx, trackY);
         drawLoopPaths(ctx);
         drawLocomotive(ctx);
+        drawRobot(ctx);
 
         if (state.spotlight === 'autoware') {
             var train = trainGeometry();

@@ -9,6 +9,7 @@ pub_last: ' <span class="badge badge-pill badge-publication">Conference</span>'
 abstract: >-
   A human-instructed, dynamically reconfigurable autonomous driving system
   built on the Autoware stack.
+cover: /assets/images/covers/rtcsa-2025-autoware-flex.webp
 authors:
   - Ziwei Song
   - Mingsong Lv
@@ -17,5 +18,5 @@ authors:
   - Jen-Ming Wu
   - Nan Guan
 links:
-  Paper: https://doi.org/10.1109/RTCSA66114.2025.00011
+  DOI: https://doi.org/10.1109/RTCSA66114.2025.00011
 ---
