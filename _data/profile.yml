@@ -80,8 +80,10 @@ experience:
 service:
   - name: "IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems (IEEE TCAD)"
     position: "Invited Reviewer"
+    date: "2026"
   - name: "ACM Computing Surveys (CSUR)"
     position: "Invited Reviewer"
+    date: "2026"
 
 awards:
   - name: "Outstanding Graduate, Sichuan Province"

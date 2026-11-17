@@ -59,7 +59,12 @@
                                     <span class="timeline-dot" aria-hidden="true"></span>
                                     <div class="media-body">
                                         <div class="experience-name">{{ item.name }}</div>
-                                        {% if item.position %}<div class="experience-dept">{{ item.position }}</div>{% endif %}
+                                        {% if item.position or item.date %}
+                                        <div class="experience-meta">
+                                            <div>{{ item.position }}</div>
+                                            {% if item.date %}<div class="no-break"><em>{{ item.date }}</em></div>{% endif %}
+                                        </div>
+                                        {% endif %}
                                     </div>
                                 </li>
                                 {% endfor %}

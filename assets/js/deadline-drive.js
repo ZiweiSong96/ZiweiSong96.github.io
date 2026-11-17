@@ -90,10 +90,10 @@
             href: '/publications/#year-2026'
         },
         ater: {
-            topic: 'ROS 2 real-time robotics',
+            topic: 'Autoware truck · ROS 2',
             title: 'ATER: Adaptive Task Execution Rate Regulation for Enhanced Real-Time Performance in ROS 2',
             meta: 'RTCSA 2025 · Conference',
-            desc: 'Regulates ROS 2 task execution rates so robot task chains stay responsive under real-time constraints.',
+            desc: 'A ROS 2 topic from the CityU Shenzhen × Hon Hai autonomous truck project; regulates task execution rates so robot task chains stay responsive.',
             href: '/publications/#year-2025'
         },
         latency: {
@@ -757,7 +757,11 @@
 
         ctx.fillStyle = 'rgba(239, 196, 120, 0.8)';
         ctx.font = '6px "IBM Plex Mono", ui-monospace, monospace';
-        ctx.fillText('STATION', bx + 10, by + 12);
+        ctx.fillText('UESTC', bx + 10, by + 12);
+        ctx.fillStyle = 'rgba(214, 192, 155, 0.7)';
+        ctx.font = '5px "IBM Plex Mono", ui-monospace, monospace';
+        ctx.fillText('2015–22', bx + 10, by + 20);
+        ctx.font = '6px "IBM Plex Mono", ui-monospace, monospace';
 
         var canopyX0 = bx;
         var canopyX1 = roadW * 0.34;
@@ -857,6 +861,335 @@
         ctx.moveTo(platformClockX, platformClockY);
         ctx.lineTo(platformClockX + 3, platformClockY + 2);
         ctx.stroke();
+    }
+
+    function drawStationPlaque(ctx, x, y, title, sub) {
+        ctx.save();
+        ctx.font = '600 7.5px "IBM Plex Mono", ui-monospace, monospace';
+        var tw = ctx.measureText(title).width;
+        ctx.font = '5.5px "IBM Plex Mono", ui-monospace, monospace';
+        var sw = sub ? ctx.measureText(sub).width : 0;
+        var w = Math.max(tw, sw) + 12;
+        var h = sub ? 17 : 11;
+        ctx.fillStyle = 'rgba(26, 18, 12, 0.88)';
+        roundRect(ctx, x - w / 2, y - h + 2, w, h, 2);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.55)';
+        ctx.lineWidth = 0.7;
+        ctx.stroke();
+        ctx.textAlign = 'center';
+        ctx.fillStyle = 'rgba(239, 196, 120, 0.95)';
+        ctx.font = '600 7.5px "IBM Plex Mono", ui-monospace, monospace';
+        ctx.fillText(title, x, y - 2);
+        if (sub) {
+            ctx.fillStyle = 'rgba(214, 192, 155, 0.8)';
+            ctx.font = '5.5px "IBM Plex Mono", ui-monospace, monospace';
+            ctx.fillText(sub, x, y + 5);
+        }
+        ctx.restore();
+    }
+
+    function drawNeuronTree(ctx, x, baseY) {
+        var s = clamp(roadW / 700, 0.7, 0.95);
+        var now = performance.now();
+        ctx.save();
+        ctx.translate(x, baseY);
+        ctx.scale(s, s);
+
+        ctx.fillStyle = '#5b3b1c';
+        roundRect(ctx, -18, -5, 36, 5, 2);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.5)';
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(-17, -5);
+        ctx.bezierCurveTo(-17, -34, -8, -46, 0, -46);
+        ctx.bezierCurveTo(8, -46, 17, -34, 17, -5);
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(63, 111, 104, 0.09)';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.42)';
+        ctx.stroke();
+
+        var nodes = [[-9, -15], [9, -17], [-5, -28], [6, -33], [0, -40], [-13, -30], [13, -27]];
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.65)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, -5);
+        ctx.quadraticCurveTo(-3, -18, -9, -15);
+        ctx.moveTo(0, -5);
+        ctx.quadraticCurveTo(3, -18, 9, -17);
+        ctx.moveTo(0, -5);
+        ctx.quadraticCurveTo(-2, -25, -5, -28);
+        ctx.moveTo(0, -5);
+        ctx.quadraticCurveTo(1, -24, 6, -33);
+        ctx.moveTo(-5, -28);
+        ctx.quadraticCurveTo(-3, -35, 0, -40);
+        ctx.moveTo(-9, -15);
+        ctx.quadraticCurveTo(-12, -24, -13, -30);
+        ctx.moveTo(9, -17);
+        ctx.quadraticCurveTo(11, -22, 13, -27);
+        ctx.stroke();
+
+        var pulse = 0.65 + Math.sin(now / 800) * 0.18;
+        nodes.forEach(function (node) {
+            var r = 1.5 + (node[1] < -30 ? 0.5 : 0);
+            var glow = ctx.createRadialGradient(node[0], node[1], 0, node[0], node[1], 6);
+            glow.addColorStop(0, 'rgba(63, 111, 104, ' + (0.3 * pulse).toFixed(3) + ')');
+            glow.addColorStop(1, 'rgba(63, 111, 104, 0)');
+            ctx.fillStyle = glow;
+            ctx.beginPath();
+            ctx.arc(node[0], node[1], 6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = 'rgba(239, 196, 120, 0.9)';
+            ctx.beginPath();
+            ctx.arc(node[0], node[1], r, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(63, 111, 104, 0.8)';
+            ctx.lineWidth = 0.8;
+            ctx.stroke();
+        });
+
+        ctx.fillStyle = 'rgba(239, 196, 120, 0.75)';
+        ctx.font = '5px "IBM Plex Mono", ui-monospace, monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('DNN', 0, -47);
+        ctx.restore();
+    }
+
+    function drawForecourt(ctx, trackY) {
+        var roadY = trackY + Math.min(24, (roadH - trackY) * 0.42);
+        var x0 = roadW * 0.38;
+        var x1 = roadW * 0.62;
+        ctx.fillStyle = 'rgba(18, 12, 8, 0.88)';
+        roundRect(ctx, x0, roadY - 2, x1 - x0, 6, 2);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.35)';
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(199, 154, 74, 0.12)';
+        ctx.fillRect(x0 + 5, roadY + 1, x1 - x0 - 10, 1);
+        return roadY;
+    }
+
+    function drawTruck(ctx, x, baseY) {
+        var s = clamp(roadW / 460, 1.0, 1.4);
+        var now = performance.now();
+        ctx.save();
+        ctx.translate(x, baseY);
+        ctx.scale(s, s);
+
+        ctx.fillStyle = 'rgba(22, 15, 10, 0.88)';
+        roundRect(ctx, -30, -3, 60, 5, 1.5);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.35)';
+        ctx.lineWidth = 0.7;
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+        ctx.beginPath();
+        ctx.ellipse(0, 2, 28, 3, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#1b130c';
+        ctx.beginPath();
+        ctx.arc(-14, -5, 4.5, 0, Math.PI * 2);
+        ctx.arc(12, -5, 4.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.65)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(-14, -5, 2, 0, Math.PI * 2);
+        ctx.arc(12, -5, 2, 0, Math.PI * 2);
+        ctx.stroke();
+
+        var cargo = ctx.createLinearGradient(0, -20, 0, -5);
+        cargo.addColorStop(0, '#b3813a');
+        cargo.addColorStop(1, '#5b3b1c');
+        ctx.fillStyle = cargo;
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.65)';
+        roundRect(ctx, -22, -19, 30, 13, 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.strokeStyle = 'rgba(36, 26, 18, 0.45)';
+        ctx.lineWidth = 0.7;
+        [-16, -8, 0].forEach(function (slatX) {
+            ctx.beginPath();
+            ctx.moveTo(slatX, -18);
+            ctx.lineTo(slatX, -6);
+            ctx.stroke();
+        });
+
+        ctx.fillStyle = '#3f6f68';
+        ctx.strokeStyle = 'rgba(239, 196, 120, 0.55)';
+        roundRect(ctx, 8, -17, 16, 11, 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(242, 184, 107, 0.65)';
+        roundRect(ctx, 11, -14, 6, 5, 1);
+        ctx.fill();
+
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.75)';
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(18, -17);
+        ctx.lineTo(18, -27);
+        ctx.stroke();
+        ctx.fillStyle = '#2b1e14';
+        ctx.beginPath();
+        ctx.arc(18, -29, 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(63, 111, 104, 0.75)';
+        ctx.beginPath();
+        ctx.arc(18, -29, 5, Math.PI * 0.15, Math.PI * 1.85);
+        ctx.stroke();
+
+        ctx.fillStyle = 'rgba(255, 236, 196, 0.75)';
+        ctx.beginPath();
+        ctx.arc(23, -9, 1.3, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.globalAlpha = 0.55;
+        ctx.strokeStyle = 'rgba(63, 111, 104, 0.55)';
+        ctx.beginPath();
+        ctx.moveTo(18, -29);
+        ctx.lineTo(18 + Math.cos(now / 900) * 7, -29 + Math.sin(now / 900) * 4);
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+        ctx.restore();
+    }
+
+    function drawMiniStation(ctx, trackY, x, w, title, sub, options) {
+        options = options || {};
+        var major = !!options.major;
+        var h = major ? Math.max(48, Math.min(62, roadH * 0.2)) : Math.max(32, Math.min(46, roadH * 0.16));
+        var bw = Math.max(30, w * (major ? 0.42 : 0.34));
+        var bx = x + w * 0.30;
+        var by = trackY - h;
+        var canopyY = by + 2;
+
+        ctx.fillStyle = 'rgba(22, 15, 10, 0.78)';
+        ctx.fillRect(x, trackY - 2, w, 6);
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.3)';
+        ctx.lineWidth = 0.8;
+        ctx.beginPath();
+        ctx.moveTo(x, trackY - 2);
+        ctx.lineTo(x + w, trackY - 2);
+        ctx.stroke();
+
+        ctx.fillStyle = '#2b1e14';
+        ctx.fillRect(bx, by, bw, h);
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.28)';
+        ctx.strokeRect(bx + 0.5, by + 0.5, bw - 1, h - 1);
+
+        ctx.beginPath();
+        ctx.moveTo(bx - 4, by);
+        ctx.lineTo(bx + bw / 2, by - 10);
+        ctx.lineTo(bx + bw + 4, by);
+        ctx.closePath();
+        ctx.fillStyle = '#1b130c';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.32)';
+        ctx.stroke();
+
+        var winCount = major ? 3 : 2;
+        for (var win = 0; win < winCount; win += 1) {
+            var winX = bx + 5 + win * ((bw - 14) / Math.max(1, winCount - 1));
+            ctx.fillStyle = 'rgba(242, 184, 107, 0.42)';
+            roundRect(ctx, winX, by + h * 0.42, 7, 9, 1.5);
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(199, 154, 74, 0.4)';
+            ctx.lineWidth = 0.6;
+            ctx.stroke();
+        }
+
+        if (major) {
+            ctx.fillStyle = '#1b130c';
+            roundRect(ctx, bx + bw / 2 - 4, by + h - 13, 8, 13, 1);
+            ctx.fill();
+        }
+
+        ctx.strokeStyle = '#4a3520';
+        ctx.lineWidth = 2;
+        [x + 4, x + w - 4].forEach(function (colX) {
+            ctx.beginPath();
+            ctx.moveTo(colX, canopyY);
+            ctx.lineTo(colX, trackY);
+            ctx.stroke();
+        });
+        ctx.beginPath();
+        ctx.moveTo(x, canopyY + 6);
+        ctx.quadraticCurveTo(x + w / 2, canopyY - 4, x + w, canopyY + 6);
+        ctx.lineTo(x + w, canopyY + 9);
+        ctx.quadraticCurveTo(x + w / 2, canopyY - 1, x, canopyY + 9);
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(199, 154, 74, 0.13)';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.5)';
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.2)';
+        ctx.lineWidth = 0.6;
+        for (var rib = x + 12; rib < x + w; rib += 16) {
+            ctx.beginPath();
+            ctx.moveTo(rib, canopyY + 2);
+            ctx.lineTo(rib, canopyY + 9);
+            ctx.stroke();
+        }
+
+        var lampX = x + w * 0.5;
+        var lampY = canopyY + 8;
+        var glow = ctx.createRadialGradient(lampX, lampY, 0, lampX, lampY, 10);
+        glow.addColorStop(0, 'rgba(242, 184, 107, 0.18)');
+        glow.addColorStop(1, 'rgba(242, 184, 107, 0)');
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(lampX, lampY, 10, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = 'rgba(255, 236, 196, 0.8)';
+        ctx.beginPath();
+        ctx.arc(lampX, lampY, 1.4, 0, Math.PI * 2);
+        ctx.fill();
+
+        var clockX = bx + bw / 2;
+        var clockY = by + 8;
+        if (options.clock && major) {
+            ctx.fillStyle = '#2b1e14';
+            ctx.fillRect(clockX - 5, by - 22, 10, 22);
+            ctx.strokeStyle = 'rgba(199, 154, 74, 0.35)';
+            ctx.strokeRect(clockX - 4.5, by - 21.5, 9, 21);
+            ctx.beginPath();
+            ctx.moveTo(clockX - 8, by - 22);
+            ctx.lineTo(clockX, by - 30);
+            ctx.lineTo(clockX + 8, by - 22);
+            ctx.closePath();
+            ctx.fillStyle = '#1b130c';
+            ctx.fill();
+            ctx.stroke();
+            clockY = by - 18;
+        }
+
+        if (options.clock) {
+            ctx.fillStyle = '#fbf4e3';
+            ctx.strokeStyle = 'rgba(199, 154, 74, 0.75)';
+            ctx.lineWidth = 0.9;
+            ctx.beginPath();
+            ctx.arc(clockX, clockY, 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.strokeStyle = '#4a3520';
+            ctx.lineWidth = 0.8;
+            ctx.beginPath();
+            ctx.moveTo(clockX, clockY);
+            ctx.lineTo(clockX, clockY - 3);
+            ctx.moveTo(clockX, clockY);
+            ctx.lineTo(clockX + 2, clockY + 1);
+            ctx.stroke();
+        }
+
+        drawStationPlaque(ctx, x + w / 2, by - (major ? 38 : 6), title, sub);
     }
 
     function drawPlatformDetails(ctx, trackY) {
@@ -1016,6 +1349,188 @@
         });
     }
 
+    function drawTunnel(ctx, x, w, trackY, label) {
+        var h = Math.min(54, roadH * 0.2);
+        var top = trackY - h;
+
+        ctx.fillStyle = '#241a12';
+        ctx.beginPath();
+        ctx.moveTo(x, trackY);
+        ctx.lineTo(x, top + 10);
+        ctx.quadraticCurveTo(x + w / 2, top - 6, x + w, top + 10);
+        ctx.lineTo(x + w, trackY);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.38)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        ctx.fillStyle = '#090604';
+        ctx.beginPath();
+        ctx.moveTo(x + w * 0.14, trackY);
+        ctx.lineTo(x + w * 0.14, top + 18);
+        ctx.quadraticCurveTo(x + w / 2, top + 2, x + w * 0.86, top + 18);
+        ctx.lineTo(x + w * 0.86, trackY);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.45)';
+        ctx.beginPath();
+        ctx.moveTo(x + w * 0.22, top + 20);
+        ctx.quadraticCurveTo(x + w / 2, top + 8, x + w * 0.78, top + 20);
+        ctx.stroke();
+
+        ctx.fillStyle = 'rgba(199, 154, 74, 0.5)';
+        for (var rivet = 0; rivet < 4; rivet += 1) {
+            ctx.beginPath();
+            ctx.arc(x + 5 + rivet * (w - 10) / 3, top + 16, 0.8, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        if (label) {
+            ctx.fillStyle = 'rgba(239, 196, 120, 0.7)';
+            ctx.font = '5.5px "IBM Plex Mono", ui-monospace, monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText(label, x + w / 2, top - 5);
+        }
+    }
+
+    function drawCheckpoint(ctx, trackY) {
+        var cx = roadW * 0.46;
+        var half = roadW * 0.075;
+        var top = trackY - 58;
+        var left = cx - half;
+        var right = cx + half;
+
+        ctx.strokeStyle = '#4a3520';
+        ctx.lineWidth = 3;
+        [left, right].forEach(function (postX) {
+            ctx.beginPath();
+            ctx.moveTo(postX, top);
+            ctx.lineTo(postX, trackY);
+            ctx.stroke();
+            ctx.strokeStyle = 'rgba(199, 154, 74, 0.4)';
+            ctx.lineWidth = 0.8;
+            ctx.beginPath();
+            ctx.moveTo(postX - 1.2, top + 2);
+            ctx.lineTo(postX - 1.2, trackY);
+            ctx.stroke();
+            ctx.strokeStyle = '#4a3520';
+            ctx.lineWidth = 3;
+        });
+
+        ctx.strokeStyle = '#4a3520';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(left, top);
+        ctx.lineTo(right, top);
+        ctx.stroke();
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.5)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(left + 3, top + 2);
+        ctx.lineTo(right - 3, top + 2);
+        ctx.stroke();
+
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.22)';
+        ctx.lineWidth = 0.8;
+        ctx.beginPath();
+        ctx.moveTo(left + 6, top + 8);
+        ctx.lineTo(right - 6, top + 18);
+        ctx.moveTo(right - 6, top + 8);
+        ctx.lineTo(left + 6, top + 18);
+        ctx.stroke();
+
+        var lampX = cx;
+        var lampY = top + 12;
+        var glow = ctx.createRadialGradient(lampX, lampY, 0, lampX, lampY, 11);
+        glow.addColorStop(0, 'rgba(63, 111, 104, 0.25)');
+        glow.addColorStop(1, 'rgba(63, 111, 104, 0)');
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(lampX, lampY, 11, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = 'rgba(239, 196, 120, 0.85)';
+        ctx.beginPath();
+        ctx.arc(lampX, lampY, 1.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        var boothW = roadW * 0.045;
+        var boothH = 25;
+        var boothX = left - boothW - 4;
+        var boothY = trackY - boothH;
+        ctx.fillStyle = '#2b1e14';
+        ctx.fillRect(boothX, boothY, boothW, boothH);
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.35)';
+        ctx.lineWidth = 0.8;
+        ctx.strokeRect(boothX + 0.5, boothY + 0.5, boothW - 1, boothH - 1);
+        ctx.fillStyle = 'rgba(242, 184, 107, 0.45)';
+        ctx.fillRect(boothX + 4, boothY + 7, boothW - 8, 6);
+        ctx.fillStyle = '#1b130c';
+        ctx.beginPath();
+        ctx.moveTo(boothX - 2, boothY);
+        ctx.lineTo(boothX + boothW / 2, boothY - 6);
+        ctx.lineTo(boothX + boothW + 2, boothY);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.save();
+        ctx.translate(boothX + boothW, boothY + 10);
+        ctx.rotate(-0.28);
+        ctx.fillStyle = 'rgba(199, 154, 74, 0.45)';
+        ctx.fillRect(0, 0, 22, 3);
+        ctx.fillStyle = 'rgba(143, 47, 47, 0.55)';
+        ctx.fillRect(4, 0, 4, 3);
+        ctx.fillRect(12, 0, 4, 3);
+        ctx.restore();
+
+        drawStationPlaque(ctx, cx, top - 5, 'CITYU SZ × HON HAI', 'CHECKPOINT · 2022–23');
+    }
+
+    function drawMoEStack(ctx, x, baseY) {
+        var s = clamp(roadW / 700, 0.75, 1.05);
+        ctx.save();
+        ctx.translate(x, baseY);
+        ctx.scale(s, s);
+
+        ctx.fillStyle = '#5b3b1c';
+        roundRect(ctx, -16, -4, 32, 4, 1);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.45)';
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+
+        [-10, 0, 10].forEach(function (dx, index) {
+            var drum = ctx.createLinearGradient(dx - 4, 0, dx + 4, 0);
+            drum.addColorStop(0, '#5b3b1c');
+            drum.addColorStop(0.5, '#c79a4a');
+            drum.addColorStop(1, '#6b451f');
+            ctx.fillStyle = drum;
+            ctx.strokeStyle = 'rgba(239, 196, 120, 0.55)';
+            roundRect(ctx, dx - 3.5, -17, 7, 13, 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = '#fbf4e3';
+            ctx.strokeStyle = 'rgba(169, 116, 43, 0.7)';
+            ctx.lineWidth = 0.6;
+            ctx.beginPath();
+            ctx.arc(dx, -19, 2.1, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.strokeStyle = 'rgba(169, 116, 43, 0.6)';
+            ctx.beginPath();
+            ctx.moveTo(dx, -17);
+            ctx.lineTo(dx, -10);
+            ctx.stroke();
+        });
+
+        ctx.fillStyle = 'rgba(239, 196, 120, 0.8)';
+        ctx.font = '4.5px "IBM Plex Mono", ui-monospace, monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('RT-MoE', 0, -23);
+        ctx.restore();
+    }
+
     function drawBackdrop(ctx, trackY) {
         var sky = ctx.createLinearGradient(0, 0, 0, trackY);
         sky.addColorStop(0, '#17110c');
@@ -1053,9 +1568,14 @@
         drawGear(ctx, roadW * 0.09, roadH * 0.12, Math.min(roadW, roadH) * 0.07, 10, 'rgba(199, 154, 74, 0.09)', 1, 0.2);
 
         drawSkyline(ctx, trackY);
-        drawStation(ctx, trackY);
-        drawClockTower(ctx, trackY);
+        drawTunnel(ctx, 0, roadW * 0.055, trackY, '');
+        drawTunnel(ctx, roadW * 0.945, roadW * 0.055, trackY, 'NEXT');
         drawGasLamps(ctx, trackY);
+        drawMiniStation(ctx, trackY, roadW * 0.04, roadW * 0.18, 'UESTC', 'START · 2015–22', {});
+        drawNeuronTree(ctx, roadW * 0.21, trackY - 2);
+        drawCheckpoint(ctx, trackY);
+        drawMiniStation(ctx, trackY, roadW * 0.60, roadW * 0.33, 'CITYU MLAB', '2023–NOW', { clock: true, major: true });
+        drawMoEStack(ctx, roadW * 0.665, trackY - 2);
     }
 
     function drawTrack(ctx, trackY) {
@@ -1186,7 +1706,7 @@
     function robotGeometry() {
         var scale = clamp(roadW / 620, 0.85, 1.15);
         return {
-            x: roadW * 0.50,
+            x: roadW * 0.52,
             baseY: roadH * 0.78 - 8,
             scale: scale
         };
@@ -1662,9 +2182,30 @@
         ctx.restore();
     }
 
+    function routeTrainX() {
+        var x0 = -0.10 * roadW;
+        var xU = 0.14 * roadW;
+        var xC = 0.46 * roadW;
+        var xCity = 0.76 * roadW;
+        var x1 = 1.10 * roadW;
+        var t = (performance.now() / 1000 + 4) % 35;
+        function ease(f) {
+            return f * f * (3 - 2 * f);
+        }
+        if (t < 4) return x0 + (xU - x0) * ease(t / 4);
+        if (t < 7) return xU;
+        if (t < 14) return xU + (xC - xU) * ease((t - 7) / 7);
+        if (t < 17) return xC;
+        if (t < 24) return xC + (xCity - xC) * ease((t - 17) / 7);
+        if (t < 29) return xCity;
+        if (t < 34) return xCity + (x1 - xCity) * ease((t - 29) / 5);
+        return x1;
+    }
+
     function trainGeometry() {
-        var scale = clamp(roadW / 700, 0.78, 1.08);
-        var cx = roadW * 0.37;
+        var scale = clamp(roadW / 1000, 0.50, 0.72);
+        var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var cx = reduced ? roadW * 0.76 : routeTrainX();
         var trackY = roadH * 0.78;
         return {
             scale: scale,
@@ -1678,6 +2219,22 @@
     }
 
     function brainGeometry() {
+        if (roadW < 420) {
+            var bx = roadW - 28;
+            var by = 24;
+            return {
+                cw: 26,
+                ch: 26,
+                cx: bx,
+                cy: by,
+                inputX: bx,
+                inputY: by + 12,
+                routerX: bx,
+                routerY: by + 12,
+                actionX: bx - 8,
+                actionY: by + 22
+            };
+        }
         var cw = clamp(roadW * 0.36, 150, 190);
         var ch = clamp(roadH * 0.48, 96, 128);
         var cx = roadW - cw - 10;
@@ -1871,6 +2428,24 @@
         var now = performance.now();
         var pulse = reduceMotion.matches ? 0.5 : 0.5 + 0.5 * Math.sin(now / 350);
 
+        if (roadW < 420) {
+            ctx.save();
+            var mobileGlow = ctx.createRadialGradient(cx, cy + 12, 0, cx, cy + 12, 18);
+            mobileGlow.addColorStop(0, 'rgba(199, 154, 74, 0.22)');
+            mobileGlow.addColorStop(1, 'rgba(199, 154, 74, 0)');
+            ctx.fillStyle = mobileGlow;
+            ctx.beginPath();
+            ctx.arc(cx, cy + 12, 18, 0, Math.PI * 2);
+            ctx.fill();
+            drawGear(ctx, cx, cy + 12, 8, 8, 'rgba(199, 154, 74, 0.55)', 0.8, now / 900);
+            ctx.fillStyle = 'rgba(239, 196, 120, 0.8)';
+            ctx.font = '5px "IBM Plex Mono", ui-monospace, monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText('MoE', cx, cy + 28);
+            ctx.restore();
+            return;
+        }
+
         ctx.save();
         ctx.shadowColor = 'rgba(169, 116, 43, 0.18)';
         ctx.shadowBlur = 16;
@@ -1911,6 +2486,7 @@
         ctx.stroke();
         ctx.fillStyle = 'rgba(239, 196, 120, 0.95)';
         ctx.font = '9px Cinzel, Georgia, serif';
+        ctx.textAlign = 'left';
         ctx.fillText('MoE ENGINE', cx + 20, cy + 19);
         ctx.fillStyle = 'rgba(199, 154, 74, 0.8)';
         ctx.font = '6px "IBM Plex Mono", ui-monospace, monospace';
@@ -2087,6 +2663,8 @@
         drawSignals(ctx, trackY);
         drawLoopPaths(ctx);
         drawLocomotive(ctx);
+        var forecourtY = drawForecourt(ctx, trackY);
+        drawTruck(ctx, roadW * 0.44, forecourtY + 2);
         drawPlatformDetails(ctx, trackY);
         drawRobot(ctx);
 
