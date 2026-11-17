@@ -41,7 +41,7 @@
     var EXPERTS = 8;
     var WINDOW = 48;
     var TICK_MS = 720;
-    var COLORS = ['#3ee6c0', '#6aa9ff', '#a78bfa', '#f2b86b', '#5eead4', '#93c5fd', '#c4b5fd', '#fcd34d'];
+    var COLORS = ['#a9742b', '#a95f35', '#3f6f68', '#8f2f2f', '#b08d57', '#6b7f5a', '#c79a4a', '#7a5a3a'];
 
     var INSTRUCTIONS = {
         cruise: {
@@ -202,6 +202,73 @@
         var sorted = values.slice().sort(function (a, b) { return a - b; });
         var index = Math.min(sorted.length - 1, Math.max(0, Math.floor(p * (sorted.length - 1))));
         return sorted[index];
+    }
+
+    function drawGear(ctx, x, y, radius, teeth, color, lineWidth, angle) {
+        var steps = teeth * 2;
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(angle || 0);
+        ctx.beginPath();
+        for (var i = 0; i < steps; i += 1) {
+            var r = i % 2 === 0 ? radius : radius * 0.76;
+            var a = -Math.PI / 2 + (Math.PI * 2 / steps) * i;
+            var px = Math.cos(a) * r;
+            var py = Math.sin(a) * r;
+            if (i === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(42, 31, 21, 0.9)';
+        ctx.strokeStyle = color;
+        ctx.lineWidth = lineWidth || 1;
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(0, 0, radius * 0.3, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.globalAlpha = 0.85;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+        ctx.restore();
+    }
+
+    function drawValve(ctx, x, y, radius, color, resident, selected, pulse) {
+        if (selected) {
+            ctx.fillStyle = 'rgba(199, 154, 74, ' + (0.08 + pulse * 0.12).toFixed(3) + ')';
+            ctx.beginPath();
+            ctx.arc(x, y, radius + 4 + pulse * 2, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        ctx.strokeStyle = resident ? color : 'rgba(255, 236, 196, 0.22)';
+        ctx.lineWidth = selected ? 1.2 : 0.8;
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.strokeStyle = resident ? color : 'rgba(255, 236, 196, 0.15)';
+        ctx.lineWidth = 0.7;
+        for (var k = 0; k < 4; k += 1) {
+            var angle = Math.PI / 4 + k * (Math.PI / 2);
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x + Math.cos(angle) * radius * 0.72, y + Math.sin(angle) * radius * 0.72);
+            ctx.stroke();
+        }
+
+        ctx.fillStyle = resident ? color : 'rgba(255, 236, 196, 0.28)';
+        ctx.beginPath();
+        ctx.arc(x, y, radius * 0.28, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (selected) {
+            ctx.strokeStyle = 'rgba(255, 246, 224, 0.92)';
+            ctx.lineWidth = 1.1;
+            ctx.beginPath();
+            ctx.arc(x, y, radius + 1.5, 0, Math.PI * 2);
+            ctx.stroke();
+        }
     }
 
     function laneY(lane) {
@@ -499,13 +566,13 @@
         var stats = getStats();
 
         ctx.clearRect(0, 0, w, h);
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.018)';
+        ctx.fillStyle = 'rgba(169, 116, 43, 0.05)';
         roundRect(ctx, 0, 0, w, h, 6);
         ctx.fill();
 
         if (!data.length) {
             ctx.fillStyle = 'rgba(139, 156, 177, 0.65)';
-            ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+            ctx.font = '10px "IBM Plex Mono", ui-monospace, monospace';
             ctx.textAlign = 'center';
             ctx.fillText('waiting for samples', w / 2, h / 2 + 3);
             ctx.textAlign = 'left';
@@ -518,13 +585,22 @@
         });
         maxLatency *= 1.06;
 
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+        ctx.strokeStyle = 'rgba(169, 116, 43, 0.12)';
         ctx.lineWidth = 1;
         for (var row = 1; row <= 2; row += 1) {
             var gy = padTop + (plotH / 3) * row;
             ctx.beginPath();
             ctx.moveTo(0, gy);
             ctx.lineTo(w, gy);
+            ctx.stroke();
+        }
+
+        ctx.strokeStyle = 'rgba(169, 116, 43, 0.07)';
+        for (var column = 1; column < 8; column += 1) {
+            var gx = (w / 8) * column;
+            ctx.beginPath();
+            ctx.moveTo(gx, padTop);
+            ctx.lineTo(gx, padTop + plotH);
             ctx.stroke();
         }
 
@@ -536,7 +612,7 @@
             var x = 2 + (offset + index) * slot;
             var barH = Math.max(1, (item.latency / maxLatency) * plotH);
             var y = padTop + plotH - barH;
-            ctx.fillStyle = item.latency > state.deadline ? 'rgba(255, 122, 122, 0.82)' : 'rgba(62, 230, 192, 0.72)';
+            ctx.fillStyle = item.latency > state.deadline ? 'rgba(143, 47, 47, 0.85)' : 'rgba(169, 116, 43, 0.8)';
             roundRect(ctx, x, y, barW, barH, 1);
             ctx.fill();
         });
@@ -544,14 +620,14 @@
         var deadlineY = padTop + plotH - (state.deadline / maxLatency) * plotH;
         ctx.save();
         ctx.setLineDash([4, 3]);
-        ctx.strokeStyle = 'rgba(242, 184, 107, 0.7)';
+        ctx.strokeStyle = 'rgba(143, 47, 47, 0.72)';
         ctx.beginPath();
         ctx.moveTo(0, deadlineY);
         ctx.lineTo(w, deadlineY);
         ctx.stroke();
         ctx.setLineDash([]);
-        ctx.fillStyle = 'rgba(242, 184, 107, 0.82)';
-        ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+        ctx.fillStyle = 'rgba(143, 47, 47, 0.85)';
+        ctx.font = '10px "IBM Plex Mono", ui-monospace, monospace';
         ctx.fillText('DL ' + state.deadline, 2, Math.max(10, deadlineY - 4));
         ctx.restore();
 
@@ -559,7 +635,7 @@
             var p99Y = padTop + plotH - (stats.p99 / maxLatency) * plotH;
             ctx.save();
             ctx.setLineDash([1, 3]);
-            ctx.strokeStyle = 'rgba(106, 169, 255, 0.5)';
+            ctx.strokeStyle = 'rgba(63, 111, 104, 0.5)';
             ctx.beginPath();
             ctx.moveTo(0, p99Y);
             ctx.lineTo(w, p99Y);
@@ -623,19 +699,19 @@
         function drawStrip(items, anchor) {
             items.forEach(function (building) {
                 var y = building.direction === 'up' ? anchor - building.bh : anchor;
-                ctx.fillStyle = '#0a1119';
+                ctx.fillStyle = '#2b2117';
                 ctx.fillRect(building.x, y, building.bw, building.bh);
                 ctx.strokeStyle = 'rgba(255, 255, 255, 0.035)';
                 ctx.lineWidth = 1;
                 ctx.strokeRect(building.x + 0.5, y + 0.5, building.bw - 1, building.bh - 1);
 
                 building.windows.forEach(function (windowItem) {
-                    ctx.fillStyle = windowItem.teal ? 'rgba(62, 230, 192, 0.30)' : 'rgba(242, 184, 107, 0.26)';
+                    ctx.fillStyle = windowItem.teal ? 'rgba(199, 154, 74, 0.30)' : 'rgba(242, 184, 107, 0.26)';
                     ctx.fillRect(building.x + windowItem.x, y + windowItem.y, 2, 2);
                 });
 
                 if (building.accent) {
-                    ctx.fillStyle = 'rgba(62, 230, 192, 0.55)';
+                    ctx.fillStyle = 'rgba(199, 154, 74, 0.55)';
                     ctx.fillRect(building.x + 4, y + 2, Math.min(building.bw - 8, 18), 1);
                 }
             });
@@ -647,7 +723,7 @@
 
     function drawStreetlights(ctx, top, bottom) {
         for (var x = 36; x < roadW; x += 92) {
-            ctx.strokeStyle = 'rgba(39, 59, 80, 0.9)';
+            ctx.strokeStyle = 'rgba(90, 70, 45, 0.9)';
             ctx.lineWidth = 1;
             ctx.beginPath();
             ctx.moveTo(x, top);
@@ -658,18 +734,59 @@
 
             [top - 9, bottom + 9].forEach(function (y) {
                 var glow = ctx.createRadialGradient(x, y, 0, x, y, 18);
-                glow.addColorStop(0, 'rgba(62, 230, 192, 0.14)');
-                glow.addColorStop(1, 'rgba(62, 230, 192, 0)');
+                glow.addColorStop(0, 'rgba(242, 184, 107, 0.2)');
+                glow.addColorStop(1, 'rgba(242, 184, 107, 0)');
                 ctx.fillStyle = glow;
                 ctx.beginPath();
                 ctx.arc(x, y, 18, 0, Math.PI * 2);
                 ctx.fill();
             });
 
-            ctx.fillStyle = 'rgba(62, 230, 192, 0.8)';
-            ctx.fillRect(x - 1.5, top - 10, 3, 2);
-            ctx.fillRect(x - 1.5, bottom + 8, 3, 2);
+            ctx.fillStyle = 'rgba(242, 184, 107, 0.9)';
+            ctx.fillRect(x - 2, top - 13, 4, 4);
+            ctx.fillRect(x - 2, bottom + 8, 4, 4);
         }
+    }
+
+    function drawClockTower(ctx, top) {
+        var tx = roadW * 0.42;
+        var width = 18;
+        var height = Math.min(46, top - 8);
+        var y = top - height;
+
+        ctx.fillStyle = '#241a12';
+        ctx.fillRect(tx - width / 2, y, width, height);
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.28)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(tx - width / 2, y, width, height);
+
+        ctx.beginPath();
+        ctx.moveTo(tx - width / 2 - 2, y);
+        ctx.lineTo(tx, y - 7);
+        ctx.lineTo(tx + width / 2 + 2, y);
+        ctx.closePath();
+        ctx.fillStyle = '#1b130c';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.35)';
+        ctx.stroke();
+
+        var faceY = y + 11;
+        ctx.fillStyle = 'rgba(239, 196, 120, 0.12)';
+        ctx.beginPath();
+        ctx.arc(tx, faceY, 5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(239, 196, 120, 0.55)';
+        ctx.beginPath();
+        ctx.arc(tx, faceY, 5, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(tx, faceY);
+        ctx.lineTo(tx, faceY - 3);
+        ctx.moveTo(tx, faceY);
+        ctx.lineTo(tx + 2.5, faceY + 1.5);
+        ctx.stroke();
+
+        drawGear(ctx, tx, y + height - 7, 4, 6, 'rgba(199, 154, 74, 0.4)', 0.6, performance.now() / 4000);
     }
 
     function drawRoad(ctx) {
@@ -678,13 +795,30 @@
         var laneH = (bottom - top) / 3;
 
         var roadGradient = ctx.createLinearGradient(0, top, 0, bottom);
-        roadGradient.addColorStop(0, '#0a1119');
-        roadGradient.addColorStop(0.5, '#0b141d');
-        roadGradient.addColorStop(1, '#091017');
+        roadGradient.addColorStop(0, '#2b2117');
+        roadGradient.addColorStop(0.5, '#3a2c20');
+        roadGradient.addColorStop(1, '#2c2118');
         ctx.fillStyle = roadGradient;
         ctx.fillRect(0, top, roadW, bottom - top);
 
-        ctx.strokeStyle = 'rgba(62, 230, 192, 0.32)';
+        ctx.save();
+        ctx.strokeStyle = 'rgba(20, 14, 9, 0.26)';
+        ctx.lineWidth = 1;
+        var stoneH = 9;
+        var stoneW = 20;
+        for (var row = 0; row < 8; row += 1) {
+            var stoneY = top + 4 + row * stoneH;
+            if (stoneY > bottom - 2) break;
+            var stoneOffset = (row % 2 ? stoneW / 2 : 0) - (state.roadOffset * 0.6 % stoneW);
+            for (var stone = -stoneW; stone < roadW + stoneW; stone += stoneW) {
+                ctx.beginPath();
+                ctx.ellipse(stone + stoneOffset, stoneY, stoneW * 0.42, stoneH * 0.3, 0, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+        }
+        ctx.restore();
+
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.32)';
         ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.moveTo(0, top + 0.5);
@@ -694,7 +828,7 @@
         ctx.stroke();
 
         ctx.save();
-        ctx.strokeStyle = 'rgba(215, 225, 236, 0.22)';
+        ctx.strokeStyle = 'rgba(226, 198, 148, 0.3)';
         ctx.lineWidth = 1;
         ctx.setLineDash([14, 12]);
         ctx.lineDashOffset = -state.roadOffset;
@@ -707,7 +841,7 @@
         }
         ctx.restore();
 
-        ctx.fillStyle = 'rgba(62, 230, 192, 0.035)';
+        ctx.fillStyle = 'rgba(199, 154, 74, 0.035)';
         ctx.fillRect(0, top + laneH * 1.35, roadW, laneH * 0.3);
     }
 
@@ -717,7 +851,7 @@
         var instructionY = laneY(instruction.lane);
 
         ctx.save();
-        ctx.strokeStyle = 'rgba(62, 230, 192, 0.2)';
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.2)';
         ctx.lineWidth = 2;
         ctx.setLineDash([5, 7]);
         ctx.lineDashOffset = -state.roadOffset * 0.7;
@@ -729,7 +863,7 @@
 
         if (state.instruction === 'exit') {
             ctx.save();
-            ctx.strokeStyle = 'rgba(62, 230, 192, 0.3)';
+            ctx.strokeStyle = 'rgba(199, 154, 74, 0.3)';
             ctx.lineWidth = 2;
             ctx.beginPath();
             ctx.moveTo(roadW * 0.58, laneY(2));
@@ -737,13 +871,13 @@
             ctx.stroke();
             ctx.restore();
 
-            ctx.fillStyle = 'rgba(7, 11, 16, 0.88)';
-            ctx.strokeStyle = 'rgba(62, 230, 192, 0.5)';
+            ctx.fillStyle = 'rgba(42, 31, 21, 0.88)';
+            ctx.strokeStyle = 'rgba(199, 154, 74, 0.5)';
             roundRect(ctx, roadW * 0.64, roadH * 0.31, 34, 14, 3);
             ctx.fill();
             ctx.stroke();
-            ctx.fillStyle = 'rgba(62, 230, 192, 0.9)';
-            ctx.font = '8px "JetBrains Mono", ui-monospace, monospace';
+            ctx.fillStyle = 'rgba(199, 154, 74, 0.9)';
+            ctx.font = '8px "IBM Plex Mono", ui-monospace, monospace';
             ctx.fillText('EXIT', roadW * 0.64 + 6, roadH * 0.31 + 9);
         }
 
@@ -766,24 +900,24 @@
             ctx.lineTo(cx, cy - 23);
             ctx.closePath();
             ctx.fill();
-            ctx.fillStyle = 'rgba(7, 11, 16, 0.9)';
-            ctx.font = '8px "JetBrains Mono", ui-monospace, monospace';
+            ctx.fillStyle = 'rgba(42, 31, 21, 0.9)';
+            ctx.font = '8px "IBM Plex Mono", ui-monospace, monospace';
             ctx.fillText('!', cx - 1, cy - 17);
         }
 
         if (state.instruction === 'pull') {
-            ctx.fillStyle = 'rgba(7, 11, 16, 0.88)';
-            ctx.strokeStyle = 'rgba(62, 230, 192, 0.45)';
+            ctx.fillStyle = 'rgba(42, 31, 21, 0.88)';
+            ctx.strokeStyle = 'rgba(199, 154, 74, 0.45)';
             roundRect(ctx, roadW * 0.76, roadH * 0.81, 22, 14, 3);
             ctx.fill();
             ctx.stroke();
-            ctx.fillStyle = 'rgba(62, 230, 192, 0.9)';
-            ctx.font = '9px "JetBrains Mono", ui-monospace, monospace';
+            ctx.fillStyle = 'rgba(199, 154, 74, 0.9)';
+            ctx.font = '9px "IBM Plex Mono", ui-monospace, monospace';
             ctx.fillText('P', roadW * 0.76 + 8, roadH * 0.81 + 10);
         }
 
         if (lane !== instructionY) {
-            ctx.strokeStyle = 'rgba(62, 230, 192, 0.25)';
+            ctx.strokeStyle = 'rgba(199, 154, 74, 0.25)';
             ctx.setLineDash([3, 4]);
             ctx.beginPath();
             ctx.moveTo(carX(), lane);
@@ -810,8 +944,8 @@
 
         ctx.globalCompositeOperation = 'lighter';
         var beam = ctx.createLinearGradient(30, 0, 112, 0);
-        beam.addColorStop(0, 'rgba(216, 255, 247, 0.18)');
-        beam.addColorStop(1, 'rgba(62, 230, 192, 0)');
+        beam.addColorStop(0, 'rgba(255, 236, 196, 0.18)');
+        beam.addColorStop(1, 'rgba(199, 154, 74, 0)');
         ctx.fillStyle = beam;
         ctx.beginPath();
         ctx.moveTo(30, -7);
@@ -822,25 +956,54 @@
         ctx.fill();
         ctx.globalCompositeOperation = 'source-over';
 
-        ctx.fillStyle = '#05080c';
-        ctx.strokeStyle = 'rgba(160, 175, 190, 0.32)';
-        ctx.lineWidth = 0.7;
-        [[-26, -16], [14, -16], [-26, 11], [14, 11]].forEach(function (wheel) {
-            roundRect(ctx, wheel[0], wheel[1], 12, 5, 2);
+        var steamNow = performance.now();
+        for (var puffIndex = 0; puffIndex < 4; puffIndex += 1) {
+            var puff = ((steamNow / 1500) + puffIndex * 0.25) % 1;
+            var puffX = -34 - puff * 26;
+            var puffY = -3 + Math.sin(puff * 6 + puffIndex) * 5;
+            var puffRadius = 2.5 + puff * 6;
+            ctx.fillStyle = 'rgba(238, 226, 203, ' + ((1 - puff) * 0.16).toFixed(3) + ')';
+            ctx.beginPath();
+            ctx.arc(puffX, puffY, puffRadius, 0, Math.PI * 2);
             ctx.fill();
+        }
+
+        [[-20, -15.5], [16, -15.5], [-20, 15.5], [16, 15.5]].forEach(function (wheel) {
+            ctx.fillStyle = '#1b130c';
+            ctx.beginPath();
+            ctx.arc(wheel[0], wheel[1], 4.6, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.strokeStyle = 'rgba(199, 154, 74, 0.7)';
+            ctx.lineWidth = 0.8;
+            ctx.beginPath();
+            ctx.arc(wheel[0], wheel[1], 3.1, 0, Math.PI * 2);
             ctx.stroke();
+
+            for (var spoke = 0; spoke < 4; spoke += 1) {
+                var spokeAngle = spoke * (Math.PI / 2);
+                ctx.beginPath();
+                ctx.moveTo(wheel[0], wheel[1]);
+                ctx.lineTo(wheel[0] + Math.cos(spokeAngle) * 3, wheel[1] + Math.sin(spokeAngle) * 3);
+                ctx.stroke();
+            }
+
+            ctx.fillStyle = '#c79a4a';
+            ctx.beginPath();
+            ctx.arc(wheel[0], wheel[1], 1.2, 0, Math.PI * 2);
+            ctx.fill();
         });
 
         ctx.save();
-        ctx.shadowColor = 'rgba(255, 45, 70, 0.45)';
+        ctx.shadowColor = 'rgba(169, 95, 53, 0.35)';
         ctx.shadowBlur = 14;
         var body = ctx.createLinearGradient(0, -14, 0, 14);
-        body.addColorStop(0, '#ff7a7a');
-        body.addColorStop(0.35, '#e11d2e');
-        body.addColorStop(0.7, '#b3121a');
-        body.addColorStop(1, '#6f0710');
+        body.addColorStop(0, '#d99a5b');
+        body.addColorStop(0.35, '#b46a3a');
+        body.addColorStop(0.7, '#8a4a28');
+        body.addColorStop(1, '#5e3018');
         ctx.fillStyle = body;
-        ctx.strokeStyle = 'rgba(255, 170, 170, 0.38)';
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.38)';
         ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.moveTo(34, 0);
@@ -859,6 +1022,48 @@
         ctx.stroke();
         ctx.restore();
 
+        ctx.fillStyle = 'rgba(199, 154, 74, 0.75)';
+        [[-26, -8], [-16, -9], [-6, -9.5], [4, -9.5], [14, -8]].forEach(function (rivet) {
+            ctx.beginPath();
+            ctx.arc(rivet[0], rivet[1], 0.8, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(rivet[0], -rivet[1], 0.8, 0, Math.PI * 2);
+            ctx.fill();
+        });
+
+        ctx.strokeStyle = 'rgba(239, 196, 120, 0.28)';
+        ctx.lineWidth = 0.8;
+        ctx.beginPath();
+        ctx.moveTo(-30, 0);
+        ctx.lineTo(26, 0);
+        ctx.stroke();
+
+        ctx.fillStyle = '#6b451f';
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.7)';
+        ctx.lineWidth = 0.8;
+        ctx.beginPath();
+        ctx.arc(-18, 0, 4.2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(-18, 0, 1.6, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(239, 196, 120, 0.6)';
+        ctx.stroke();
+
+        ctx.fillStyle = '#241a12';
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.7)';
+        ctx.beginPath();
+        ctx.arc(-28, -4, 2.8, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = '#0f0a06';
+        ctx.beginPath();
+        ctx.arc(-28, -4, 1.4, 0, Math.PI * 2);
+        ctx.fill();
+
+        drawGear(ctx, 18, 0, 3.2, 6, 'rgba(199, 154, 74, 0.9)', 0.7, performance.now() / 1800);
+
         ctx.fillStyle = 'rgba(10, 10, 14, 0.88)';
         ctx.beginPath();
         ctx.moveTo(-21, -11);
@@ -875,17 +1080,17 @@
         ctx.closePath();
         ctx.fill();
 
-        ctx.fillStyle = '#0a0a0e';
+        ctx.fillStyle = '#241a12';
         roundRect(ctx, 27, -6, 7, 12, 2);
         ctx.fill();
 
-        ctx.fillStyle = '#0a0a0e';
+        ctx.fillStyle = '#241a12';
         roundRect(ctx, 4, -14, 4, 2, 1);
         ctx.fill();
         roundRect(ctx, 4, 12, 4, 2, 1);
         ctx.fill();
 
-        ctx.fillStyle = '#081016';
+        ctx.fillStyle = '#241a12';
         ctx.beginPath();
         ctx.moveTo(12, 0);
         ctx.bezierCurveTo(8, -6, 2, -8, -6, -7);
@@ -894,11 +1099,11 @@
         ctx.bezierCurveTo(2, 8, 8, 6, 12, 0);
         ctx.closePath();
         ctx.fill();
-        ctx.strokeStyle = 'rgba(62, 230, 192, 0.24)';
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.24)';
         ctx.lineWidth = 1;
         ctx.stroke();
 
-        ctx.fillStyle = 'rgba(150, 255, 235, 0.2)';
+        ctx.fillStyle = 'rgba(239, 196, 120, 0.2)';
         ctx.beginPath();
         ctx.moveTo(12, -6);
         ctx.lineTo(14, -1);
@@ -916,24 +1121,20 @@
         ctx.closePath();
         ctx.fill();
 
-        ctx.fillStyle = '#f7d046';
-        roundRect(ctx, 17, -1.5, 3, 3, 1);
-        ctx.fill();
-
-        ctx.fillStyle = '#111';
+        ctx.fillStyle = '#2b1e14';
         roundRect(ctx, -38, -14, 5, 28, 2);
         ctx.fill();
-        ctx.strokeStyle = 'rgba(255, 90, 90, 0.35)';
+        ctx.strokeStyle = 'rgba(169, 95, 53, 0.35)';
         ctx.stroke();
-        ctx.fillStyle = '#6f0710';
+        ctx.fillStyle = '#5e3018';
         ctx.fillRect(-38, -15, 5, 2);
         ctx.fillRect(-38, 13, 5, 2);
-        ctx.fillStyle = '#1a1a1a';
+        ctx.fillStyle = '#33241a';
         ctx.fillRect(-33, -8, 3, 3);
         ctx.fillRect(-33, 5, 3, 3);
 
-        ctx.fillStyle = '#eafffb';
-        ctx.shadowColor = 'rgba(216, 255, 247, 0.85)';
+        ctx.fillStyle = '#fff3d6';
+        ctx.shadowColor = 'rgba(255, 236, 196, 0.85)';
         ctx.shadowBlur = braking ? 4 : 10;
         ctx.beginPath();
         ctx.moveTo(23, -8);
@@ -951,29 +1152,29 @@
         ctx.fill();
         ctx.shadowBlur = 0;
 
-        ctx.strokeStyle = 'rgba(62, 230, 192, 0.65)';
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.65)';
         ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.moveTo(2, -12);
         ctx.lineTo(6, -20);
         ctx.stroke();
-        ctx.fillStyle = 'rgba(62, 230, 192, 0.95)';
-        ctx.shadowColor = 'rgba(62, 230, 192, 0.8)';
+        ctx.fillStyle = 'rgba(199, 154, 74, 0.95)';
+        ctx.shadowColor = 'rgba(199, 154, 74, 0.8)';
         ctx.shadowBlur = 6;
         ctx.beginPath();
         ctx.arc(6, -20, 1.6, 0, Math.PI * 2);
         ctx.fill();
         ctx.shadowBlur = 0;
 
-        ctx.fillStyle = braking ? 'rgba(255, 45, 45, 1)' : 'rgba(255, 45, 45, 0.8)';
-        ctx.shadowColor = 'rgba(255, 45, 45, 0.85)';
+        ctx.fillStyle = braking ? 'rgba(143, 47, 47, 1)' : 'rgba(143, 47, 47, 0.8)';
+        ctx.shadowColor = 'rgba(143, 47, 47, 0.85)';
         ctx.shadowBlur = braking ? 14 : 6;
         ctx.fillRect(-35, -9, 3, 5);
         ctx.fillRect(-35, 4, 3, 5);
         ctx.shadowBlur = 0;
 
         if (braking) {
-            ctx.fillStyle = 'rgba(255, 40, 40, 0.12)';
+            ctx.fillStyle = 'rgba(143, 47, 47, 0.12)';
             ctx.beginPath();
             ctx.ellipse(-42, 0, 12, 10, 0, 0, Math.PI * 2);
             ctx.fill();
@@ -1073,7 +1274,7 @@
         ctx.lineWidth = 1;
         ctx.setLineDash([4, 7]);
 
-        ctx.strokeStyle = 'rgba(62, 230, 192, 0.2)';
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.2)';
         ctx.lineDashOffset = -state.roadOffset * 0.4;
         ctx.beginPath();
         ctx.moveTo(forward.x0, forward.y0);
@@ -1088,14 +1289,14 @@
         ctx.stroke();
         ctx.restore();
 
-        drawArrowhead(ctx, forward, 0.84, 'rgba(62, 230, 192, 0.55)');
+        drawArrowhead(ctx, forward, 0.84, 'rgba(199, 154, 74, 0.55)');
         drawArrowhead(ctx, action, 0.84, 'rgba(242, 184, 107, 0.6)');
 
         var forwardMid = quadPoint(forward, 0.30);
         var actionMid = quadPoint(action, 0.45);
         ctx.save();
-        ctx.font = '6px "JetBrains Mono", ui-monospace, monospace';
-        ctx.fillStyle = 'rgba(62, 230, 192, 0.55)';
+        ctx.font = '6px "IBM Plex Mono", ui-monospace, monospace';
+        ctx.fillStyle = 'rgba(199, 154, 74, 0.55)';
         ctx.fillText('uplink', forwardMid.x, forwardMid.y - 6);
         ctx.fillStyle = 'rgba(242, 184, 107, 0.6)';
         ctx.fillText('decision', actionMid.x, actionMid.y + 10);
@@ -1111,7 +1312,7 @@
             var t = clamp(elapsed / action.duration, 0, 1);
             var point = quadPoint(path, t);
             var previous = quadPoint(path, Math.max(0, t - 0.06));
-            var color = action.miss ? 'rgba(255, 107, 107, 0.95)' : 'rgba(242, 184, 107, 0.95)';
+            var color = action.miss ? 'rgba(143, 47, 47, 0.95)' : 'rgba(242, 184, 107, 0.95)';
 
             ctx.save();
             ctx.strokeStyle = color;
@@ -1126,9 +1327,7 @@
             ctx.fillStyle = color;
             ctx.shadowColor = color;
             ctx.shadowBlur = 8;
-            ctx.translate(point.x, point.y);
-            ctx.rotate(Math.PI / 4);
-            ctx.fillRect(-2.2, -2.2, 4.4, 4.4);
+            drawGear(ctx, point.x, point.y, 3.2, 6, color, 0.9, now / 250);
             ctx.restore();
 
             if (t >= 1) {
@@ -1173,91 +1372,93 @@
         }
 
         ctx.save();
-        ctx.shadowColor = 'rgba(62, 230, 192, 0.14)';
+        ctx.shadowColor = 'rgba(199, 154, 74, 0.14)';
         ctx.shadowBlur = 18;
-        ctx.fillStyle = 'rgba(8, 13, 20, 0.93)';
-        ctx.strokeStyle = state.spotlight === 'rtmoe' ? 'rgba(62, 230, 192, 0.8)' : 'rgba(62, 230, 192, 0.45)';
+        ctx.fillStyle = 'rgba(42, 31, 21, 0.93)';
+        ctx.strokeStyle = state.spotlight === 'rtmoe' ? 'rgba(199, 154, 74, 0.8)' : 'rgba(199, 154, 74, 0.45)';
         ctx.lineWidth = 1;
         roundRect(ctx, cx, cy, cw, ch, 9);
         ctx.fill();
         ctx.stroke();
         ctx.restore();
 
-        ctx.strokeStyle = 'rgba(62, 230, 192, 0.14)';
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.14)';
         ctx.lineWidth = 1;
         roundRect(ctx, cx + 4, cy + 4, cw - 8, ch - 8, 6);
         ctx.stroke();
 
-        ctx.fillStyle = 'rgba(7, 11, 16, 0.95)';
-        ctx.strokeStyle = 'rgba(62, 230, 192, 0.4)';
+        ctx.fillStyle = 'rgba(199, 154, 74, 0.7)';
+        [[cx + cw - 8, cy + 8], [cx + 8, cy + ch - 8], [cx + cw - 8, cy + ch - 8]].forEach(function (rivet) {
+            ctx.beginPath();
+            ctx.arc(rivet[0], rivet[1], 1.1, 0, Math.PI * 2);
+            ctx.fill();
+        });
+
+        ctx.fillStyle = 'rgba(42, 31, 21, 0.95)';
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.4)';
         ctx.beginPath();
         ctx.arc(cx + 9, cy + 9, 3, 0, Math.PI * 2);
         ctx.fill();
         ctx.stroke();
 
-        ctx.fillStyle = 'rgba(62, 230, 192, 0.95)';
-        ctx.font = '9px "JetBrains Mono", ui-monospace, monospace';
+        ctx.fillStyle = 'rgba(239, 196, 120, 0.95)';
+        ctx.font = '9px Cinzel, Georgia, serif';
         ctx.fillText('LLM · MoE', cx + 16, cy + 15);
-        ctx.fillStyle = 'rgba(143, 163, 184, 0.8)';
-        ctx.font = '6px "JetBrains Mono", ui-monospace, monospace';
-        ctx.fillText('chip', cx + 70, cy + 15);
+        ctx.fillStyle = 'rgba(199, 154, 74, 0.85)';
+        ctx.font = '6px "IBM Plex Mono", ui-monospace, monospace';
+        ctx.fillText('engine', cx + 70, cy + 15);
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.16)';
+        ctx.lineWidth = 0.7;
+        ctx.beginPath();
+        ctx.moveTo(cx + 16, cy + 18.5);
+        ctx.lineTo(cx + cw - 14, cy + 18.5);
+        ctx.stroke();
 
         for (var b = 0; b < blockCount; b += 1) {
             var by = g.stackY + b * blockGap;
             ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
-            ctx.strokeStyle = 'rgba(62, 230, 192, 0.25)';
+            ctx.strokeStyle = 'rgba(199, 154, 74, 0.25)';
             roundRect(ctx, g.stackX, by, g.stackW, blockH, 2);
             ctx.fill();
             ctx.stroke();
             for (var cell = 0; cell < 3; cell += 1) {
-                ctx.fillStyle = 'rgba(62, 230, 192, ' + (0.15 + cell * 0.08).toFixed(2) + ')';
+                ctx.fillStyle = 'rgba(199, 154, 74, ' + (0.15 + cell * 0.08).toFixed(2) + ')';
                 ctx.fillRect(g.stackX + 4 + cell * 9, by + 2, 4, Math.max(2, blockH - 4));
             }
+            drawGear(ctx, g.stackX + g.stackW - 4, by + blockH / 2, 3.2, 6, 'rgba(199, 154, 74, 0.7)', 0.6, now / 1600 + b * 0.4);
         }
-        ctx.fillStyle = 'rgba(143, 163, 184, 0.8)';
-        ctx.font = '6px "JetBrains Mono", ui-monospace, monospace';
+        ctx.fillStyle = 'rgba(140, 120, 94, 0.8)';
+        ctx.font = '6px "IBM Plex Mono", ui-monospace, monospace';
         ctx.fillText('transformer ×3', g.stackX, g.stackY + blockCount * blockGap + 2);
 
-        ctx.strokeStyle = 'rgba(62, 230, 192, 0.35)';
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.35)';
         ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.moveTo(g.stackX + g.stackW, g.stackY + blockH / 2);
         ctx.lineTo(g.routerX - 9, g.routerY);
         ctx.stroke();
 
-        ctx.strokeStyle = 'rgba(62, 230, 192, 0.22)';
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.22)';
         ctx.beginPath();
         ctx.moveTo(g.inputX + 3, g.inputY);
         ctx.lineTo(g.stackX, g.stackY + (blockCount - 1) * blockGap + blockH / 2);
         ctx.stroke();
 
         var pulse = reduceMotion.matches ? 0.5 : 0.5 + 0.5 * Math.sin(now / 300);
-        ctx.strokeStyle = 'rgba(62, 230, 192, ' + (0.08 + pulse * 0.1).toFixed(3) + ')';
+        ctx.strokeStyle = 'rgba(199, 154, 74, ' + (0.08 + pulse * 0.1).toFixed(3) + ')';
         ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.arc(g.routerX, g.routerY, 14 + pulse * 3, 0, Math.PI * 2);
         ctx.stroke();
 
+        drawGear(ctx, g.routerX, g.routerY, 10.5, 8, 'rgba(239, 196, 120, 0.82)', 1, now / 1600);
+        ctx.fillStyle = 'rgba(42, 31, 21, 0.8)';
         ctx.beginPath();
-        for (var k = 0; k < 6; k += 1) {
-            var angle = -Math.PI / 2 + k * (Math.PI / 3);
-            var hx = g.routerX + Math.cos(angle) * 10;
-            var hy = g.routerY + Math.sin(angle) * 10;
-            if (k === 0) ctx.moveTo(hx, hy);
-            else ctx.lineTo(hx, hy);
-        }
-        ctx.closePath();
-        ctx.fillStyle = 'rgba(7, 11, 16, 0.96)';
-        ctx.strokeStyle = 'rgba(62, 230, 192, 0.75)';
-        ctx.lineWidth = 1.1;
+        ctx.arc(g.routerX, g.routerY, 2.4, 0, Math.PI * 2);
         ctx.fill();
-        ctx.stroke();
-        ctx.fillStyle = 'rgba(62, 230, 192, 0.95)';
-        ctx.font = '7px "JetBrains Mono", ui-monospace, monospace';
+        ctx.fillStyle = 'rgba(199, 154, 74, 0.85)';
+        ctx.font = '6px "IBM Plex Mono", ui-monospace, monospace';
         ctx.textAlign = 'center';
-        ctx.fillText('R', g.routerX, g.routerY + 2.5);
-        ctx.fillStyle = 'rgba(143, 163, 184, 0.8)';
-        ctx.font = '6px "JetBrains Mono", ui-monospace, monospace';
         ctx.fillText('router', g.routerX, g.routerY - 16);
         ctx.textAlign = 'left';
 
@@ -1275,55 +1476,46 @@
             ctx.stroke();
             ctx.globalAlpha = 1;
 
-            if (selected) {
-                ctx.fillStyle = 'rgba(62, 230, 192, ' + (0.08 + pulse * 0.12).toFixed(3) + ')';
-                ctx.beginPath();
-                ctx.arc(g.expertX, padY, 6 + pulse * 3, 0, Math.PI * 2);
-                ctx.fill();
-            }
-
-            ctx.fillStyle = resident ? COLORS[i] : 'rgba(255, 255, 255, 0.07)';
-            ctx.globalAlpha = resident ? 0.92 : 0.5;
-            ctx.beginPath();
-            ctx.arc(g.expertX, padY, 3.2, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.globalAlpha = 1;
-
-            ctx.strokeStyle = selected ? 'rgba(255, 255, 255, 0.95)' : 'rgba(255, 255, 255, 0.14)';
-            ctx.lineWidth = selected ? 1.2 : 0.7;
-            ctx.beginPath();
-            ctx.arc(g.expertX, padY, 3.2, 0, Math.PI * 2);
-            ctx.stroke();
+            drawValve(ctx, g.expertX, padY, 4.2, COLORS[i], resident, selected, pulse);
         }
 
-        ctx.fillStyle = 'rgba(143, 163, 184, 0.8)';
-        ctx.font = '6px "JetBrains Mono", ui-monospace, monospace';
+        ctx.fillStyle = 'rgba(140, 120, 94, 0.8)';
+        ctx.font = '6px "IBM Plex Mono", ui-monospace, monospace';
         ctx.textAlign = 'right';
         ctx.fillText('experts', g.expertX + 6, g.expertY - 5);
         ctx.textAlign = 'left';
 
-        ctx.fillStyle = 'rgba(242, 184, 107, 0.8)';
+        ctx.strokeStyle = 'rgba(169, 95, 53, 0.65)';
+        ctx.lineWidth = 0.8;
         ctx.beginPath();
-        ctx.arc(cx + 8, cy + ch - 8, 2.4, 0, Math.PI * 2);
+        ctx.arc(cx + 8, cy + ch - 8, 4.2, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(169, 95, 53, 0.95)';
+        ctx.beginPath();
+        ctx.arc(cx + 8, cy + ch - 8, 1.8, 0, Math.PI * 2);
         ctx.fill();
-        ctx.fillStyle = 'rgba(242, 184, 107, 0.7)';
-        ctx.font = '6px "JetBrains Mono", ui-monospace, monospace';
+        ctx.fillStyle = 'rgba(199, 154, 74, 0.75)';
+        ctx.font = '6px "IBM Plex Mono", ui-monospace, monospace';
         ctx.fillText('action', cx + 14, cy + ch - 6);
 
-        ctx.fillStyle = 'rgba(62, 230, 192, 0.9)';
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.65)';
         ctx.beginPath();
-        ctx.arc(g.inputX + 2, g.inputY, 2.4, 0, Math.PI * 2);
+        ctx.arc(g.inputX + 2, g.inputY, 4, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(239, 196, 120, 0.95)';
+        ctx.beginPath();
+        ctx.arc(g.inputX + 2, g.inputY, 1.7, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.fillStyle = 'rgba(62, 230, 192, 0.85)';
-        ctx.font = '6px "JetBrains Mono", ui-monospace, monospace';
+        ctx.fillStyle = 'rgba(199, 154, 74, 0.85)';
+        ctx.font = '6px "IBM Plex Mono", ui-monospace, monospace';
         ctx.textAlign = 'right';
         ctx.fillText('tokens', g.inputX - 4, g.inputY - 5);
         ctx.textAlign = 'left';
 
         if (state.spotlight === 'rtmoe') {
             ctx.save();
-            ctx.strokeStyle = 'rgba(62, 230, 192, 0.55)';
+            ctx.strokeStyle = 'rgba(199, 154, 74, 0.55)';
             ctx.lineWidth = 1;
             ctx.setLineDash([3, 4]);
             roundRect(ctx, cx - 6, cy - 6, cw + 12, ch + 12, 11);
@@ -1349,29 +1541,39 @@
             var point = quadPoint(localPath, t);
             var previous = quadPoint(localPath, Math.max(0, t - 0.08));
             var color = COLORS[token.expert];
-            var size = 2.0 + (1 - t) * 0.8;
+            var puffRadius = 2.2 + (1 - t) * 1.1;
 
             ctx.save();
             ctx.strokeStyle = color;
-            ctx.globalAlpha = (1 - t) * 0.28;
+            ctx.globalAlpha = (1 - t) * 0.25;
             ctx.lineWidth = 1;
             ctx.beginPath();
             ctx.moveTo(previous.x, previous.y);
             ctx.lineTo(point.x, point.y);
             ctx.stroke();
 
-            ctx.globalAlpha = 1 - t * 0.45;
-            ctx.fillStyle = color;
-            ctx.shadowColor = color;
-            ctx.shadowBlur = 6;
-            roundRect(ctx, point.x - size / 2, point.y - size / 2, size, size, 1);
+            ctx.globalAlpha = (1 - t * 0.4) * 0.6;
+            ctx.fillStyle = 'rgba(246, 236, 214, 0.9)';
+            ctx.shadowColor = 'rgba(255, 236, 196, 0.5)';
+            ctx.shadowBlur = 7;
+            ctx.beginPath();
+            ctx.arc(point.x, point.y, puffRadius * 1.45, 0, Math.PI * 2);
             ctx.fill();
             ctx.shadowBlur = 0;
 
+            ctx.globalAlpha = (1 - t * 0.4) * 0.35;
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(point.x - 1, point.y - 1, puffRadius * 0.8, 0, Math.PI * 2);
+            ctx.fill();
+
             if (!token.hit) {
-                ctx.strokeStyle = 'rgba(255, 122, 122, 0.8)';
+                ctx.globalAlpha = 0.8;
+                ctx.strokeStyle = 'rgba(143, 47, 47, 0.85)';
                 ctx.lineWidth = 1;
-                ctx.strokeRect(point.x - size / 2 - 1.5, point.y - size / 2 - 1.5, size + 3, size + 3);
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, puffRadius * 1.8, 0, Math.PI * 2);
+                ctx.stroke();
             }
             ctx.restore();
         });
@@ -1383,13 +1585,13 @@
         var alpha = clamp(remaining / 260, 0, 1);
         ctx.save();
         ctx.globalAlpha = alpha;
-        ctx.fillStyle = 'rgba(7, 11, 16, 0.88)';
-        ctx.strokeStyle = 'rgba(62, 230, 192, 0.45)';
+        ctx.fillStyle = 'rgba(42, 31, 21, 0.88)';
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.45)';
         roundRect(ctx, 10, 10, 194, 24, 5);
         ctx.fill();
         ctx.stroke();
-        ctx.fillStyle = 'rgba(62, 230, 192, 0.95)';
-        ctx.font = '9px "JetBrains Mono", ui-monospace, monospace';
+        ctx.fillStyle = 'rgba(199, 154, 74, 0.95)';
+        ctx.font = '9px "IBM Plex Mono", ui-monospace, monospace';
         ctx.fillText('INSTRUCTION · ' + state.toast.text, 18, 26);
         ctx.restore();
     }
@@ -1404,13 +1606,14 @@
 
         ctx.clearRect(0, 0, w, h);
         var background = ctx.createLinearGradient(0, 0, 0, h);
-        background.addColorStop(0, '#05080d');
-        background.addColorStop(0.45, '#070c12');
-        background.addColorStop(1, '#04070b');
+        background.addColorStop(0, '#1c140d');
+        background.addColorStop(0.45, '#332417');
+        background.addColorStop(1, '#140f0a');
         ctx.fillStyle = background;
         ctx.fillRect(0, 0, w, h);
 
         drawBuildings(ctx);
+        drawClockTower(ctx, roadH * 0.30);
         drawRoad(ctx);
         drawStreetlights(ctx, top, bottom);
         drawRoute(ctx);
@@ -1420,7 +1623,7 @@
         if (state.spotlight === 'autoware') {
             var ringScale = clamp(roadW / 700, 0.78, 1.05);
             ctx.save();
-            ctx.strokeStyle = 'rgba(62, 230, 192, 0.78)';
+            ctx.strokeStyle = 'rgba(199, 154, 74, 0.78)';
             ctx.lineWidth = 1;
             ctx.setLineDash([3, 4]);
             ctx.beginPath();
@@ -1435,8 +1638,8 @@
 
         if (state.flash > 0.02) {
             var vignette = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.18, w / 2, h / 2, Math.max(w, h) * 0.62);
-            vignette.addColorStop(0, 'rgba(255, 70, 70, 0)');
-            vignette.addColorStop(1, 'rgba(255, 70, 70, ' + (0.22 * state.flash).toFixed(3) + ')');
+            vignette.addColorStop(0, 'rgba(143, 47, 47, 0)');
+            vignette.addColorStop(1, 'rgba(143, 47, 47, ' + (0.22 * state.flash).toFixed(3) + ')');
             ctx.fillStyle = vignette;
             ctx.fillRect(0, 0, w, h);
 

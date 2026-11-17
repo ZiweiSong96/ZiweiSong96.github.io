@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ site.lang | default: 'en' }}" data-theme="dark">
+<html lang="{{ site.lang | default: 'en' }}" class="theme-steampunk" data-theme="steampunk">
 <!-- Based on https://github.com/luost26/academic-homepage -->
 <head>
     <meta charset="utf-8">
@@ -56,11 +56,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/academicons/1.9.1/css/academicons.min.css" integrity="sha512-b1ASx0WHgVFL5ZQhTgiPWX+68KjS38Jk87jg7pe+qC7q9YkEtFq0z7xCglv7qGIs/68d3mAp+StfC8WKC5SSAg==" crossorigin="anonymous" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ '/assets/css/global.css' | relative_url }}?v={{ asset_version }}">
     {% if page.show_deadline_drive %}
     <link rel="stylesheet" href="{{ '/assets/css/deadline-drive.css' | relative_url }}?v={{ asset_version }}">
     {% endif %}
+    <link rel="stylesheet" href="{{ '/assets/css/steampunk.css' | relative_url }}?v={{ asset_version }}">
 </head>
 <body class="bg-light d-flex flex-column min-vh-100" {{ page.body_attr }}>
     {% include navbar.html %}

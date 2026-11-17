@@ -1,0 +1,879 @@
+/* ==========================================================================
+   Steampunk preview — brass, parchment and ink
+   Loaded after global.css / deadline-drive.css. Scoped to .theme-steampunk.
+   ========================================================================== */
+
+.theme-steampunk {
+    --steam-bg: #ece0c8;
+    --steam-bg-2: #e3d3b4;
+    --steam-card: #fbf4e3;
+    --steam-card-2: #f6ecd8;
+    --steam-ink: #33281c;
+    --steam-ink-strong: #1f1710;
+    --steam-muted: #6f5d47;
+    --steam-muted-2: #8c785e;
+    --steam-border: #c9b28a;
+    --steam-border-strong: #a8865a;
+    --steam-brass: #a9742b;
+    --steam-brass-light: #c79a4a;
+    --steam-copper: #a95f35;
+    --steam-patina: #3f6f68;
+    --steam-oxblood: #8f2f2f;
+    --steam-ochre: #b07d2a;
+
+    --bg: var(--steam-bg);
+    --bg-2: var(--steam-bg-2);
+    --card: var(--steam-card);
+    --card-2: var(--steam-card-2);
+    --border: var(--steam-border);
+    --border-strong: var(--steam-border-strong);
+    --text: var(--steam-ink);
+    --text-strong: var(--steam-ink-strong);
+    --muted: var(--steam-muted);
+    --muted-2: var(--steam-muted-2);
+    --accent: var(--steam-brass);
+    --accent-soft: rgba(169, 116, 43, 0.12);
+    --accent-glow: rgba(169, 116, 43, 0.24);
+    --blue: var(--steam-patina);
+    --mono: "IBM Plex Mono", ui-monospace, monospace;
+    --sans: "Lora", Georgia, "Times New Roman", serif;
+    --display: "Cinzel", "Lora", Georgia, serif;
+}
+
+/* --------------------------------------------------------------------------
+   Base
+   -------------------------------------------------------------------------- */
+
+.theme-steampunk body.bg-light {
+    background-color: var(--steam-bg) !important;
+    background-image:
+        radial-gradient(1000px 620px at 8% -12%, rgba(255, 249, 234, 0.9), transparent 60%),
+        radial-gradient(820px 520px at 102% 0%, rgba(169, 116, 43, 0.10), transparent 58%),
+        repeating-linear-gradient(0deg, rgba(120, 90, 50, 0.035) 0 1px, transparent 1px 48px),
+        repeating-linear-gradient(90deg, rgba(120, 90, 50, 0.035) 0 1px, transparent 1px 48px);
+    background-attachment: fixed;
+    background-repeat: repeat;
+    color: var(--steam-ink);
+    font-family: var(--sans);
+    font-size: 16px;
+}
+
+.theme-steampunk body {
+    font-family: var(--sans);
+    color: var(--steam-ink);
+}
+
+.theme-steampunk h1,
+.theme-steampunk h2,
+.theme-steampunk h3,
+.theme-steampunk h4,
+.theme-steampunk h5,
+.theme-steampunk h6 {
+    font-family: var(--display);
+    color: var(--steam-ink-strong);
+    letter-spacing: 0.015em;
+}
+
+.theme-steampunk a {
+    color: var(--steam-copper);
+}
+
+.theme-steampunk a:hover,
+.theme-steampunk a:focus {
+    color: var(--steam-brass);
+}
+
+.theme-steampunk ::selection {
+    background: rgba(169, 116, 43, 0.25);
+    color: var(--steam-ink-strong);
+}
+
+.theme-steampunk .bg-white {
+    background-color: var(--steam-card) !important;
+}
+
+.theme-steampunk .text-body {
+    color: var(--steam-ink) !important;
+}
+
+.theme-steampunk .text-muted {
+    color: var(--steam-muted) !important;
+}
+
+.theme-steampunk .border-gray,
+.theme-steampunk .border-top,
+.theme-steampunk .border-bottom {
+    border-color: var(--steam-border) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Cards
+   -------------------------------------------------------------------------- */
+
+.theme-steampunk .card {
+    background: linear-gradient(180deg, #fdf8ec, #f6ecd8);
+    border: 1px solid var(--steam-border) !important;
+    box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.6),
+        inset 0 0 0 7px rgba(169, 116, 43, 0.06),
+        0 10px 24px rgba(84, 58, 28, 0.12);
+    color: var(--steam-ink);
+}
+
+@media (hover: hover) {
+    .theme-steampunk .card:hover {
+        border-color: var(--steam-border-strong) !important;
+        box-shadow:
+            inset 0 0 0 1px rgba(255, 255, 255, 0.65),
+            inset 0 0 0 7px rgba(169, 116, 43, 0.08),
+            0 14px 30px rgba(84, 58, 28, 0.16);
+    }
+}
+
+/* --------------------------------------------------------------------------
+   Navbar + progress
+   -------------------------------------------------------------------------- */
+
+.theme-steampunk .navbar {
+    background: rgba(250, 243, 230, 0.9) !important;
+    border-bottom: 1px solid var(--steam-border);
+    box-shadow: inset 0 -2px 0 rgba(169, 116, 43, 0.12);
+}
+
+.theme-steampunk .navbar.navbar-scrolled {
+    background: rgba(250, 243, 230, 0.98) !important;
+    border-bottom-color: var(--steam-brass);
+    box-shadow: 0 8px 22px rgba(84, 58, 28, 0.14);
+}
+
+.theme-steampunk .navbar-brand {
+    color: var(--steam-ink-strong) !important;
+    font-family: var(--display);
+    letter-spacing: 0.02em;
+}
+
+.theme-steampunk .navbar-prompt {
+    color: var(--steam-brass);
+    font-family: var(--sans);
+    font-size: 0.9em;
+}
+
+.theme-steampunk .navbar-name {
+    color: var(--steam-ink-strong);
+    font-family: var(--display);
+    font-weight: 600;
+}
+
+.theme-steampunk .navbar-caret {
+    background: var(--steam-brass);
+    box-shadow: 0 0 8px var(--accent-glow);
+}
+
+.theme-steampunk .navbar-light .navbar-nav .nav-link {
+    color: var(--steam-muted) !important;
+    font-family: var(--mono);
+    letter-spacing: 0.1em;
+}
+
+.theme-steampunk .navbar-light .navbar-nav .nav-link:hover,
+.theme-steampunk .navbar-light .navbar-nav .nav-item.active .nav-link {
+    color: var(--steam-brass) !important;
+}
+
+.theme-steampunk .navbar-light .navbar-nav .nav-item.active .nav-link::after {
+    height: 2px;
+    background: var(--steam-brass);
+    box-shadow: none;
+}
+
+.theme-steampunk .navbar-toggler {
+    border-color: var(--steam-border-strong);
+    color: var(--steam-ink);
+}
+
+.theme-steampunk .navbar-toggler i {
+    color: var(--steam-brass);
+}
+
+.theme-steampunk #scroll-progress-bar {
+    background: linear-gradient(90deg, var(--steam-brass), var(--steam-copper));
+    box-shadow: 0 0 10px rgba(169, 116, 43, 0.25);
+}
+
+/* --------------------------------------------------------------------------
+   Profile card
+   -------------------------------------------------------------------------- */
+
+.theme-steampunk .profile-card {
+    background-color: #fbf4e4;
+    background-image:
+        radial-gradient(circle at 14px 14px, rgba(169, 116, 43, 0.75) 0 2px, transparent 2.8px),
+        radial-gradient(circle at calc(100% - 14px) 14px, rgba(169, 116, 43, 0.75) 0 2px, transparent 2.8px),
+        radial-gradient(circle at 14px calc(100% - 14px), rgba(169, 116, 43, 0.75) 0 2px, transparent 2.8px),
+        radial-gradient(circle at calc(100% - 14px) calc(100% - 14px), rgba(169, 116, 43, 0.75) 0 2px, transparent 2.8px),
+        linear-gradient(180deg, #fdf8ec, #f5ead4);
+    background-repeat: no-repeat;
+    background-size: 28px 28px, 28px 28px, 28px 28px, 28px 28px, auto;
+    background-position: top left, top right, bottom left, bottom right, center;
+}
+
+.theme-steampunk .profile-portrait-wrap::before {
+    background: radial-gradient(circle at 50% 42%, rgba(169, 116, 43, 0.18), transparent 68%);
+}
+
+.theme-steampunk .profile-portrait {
+    border: 3px double var(--steam-brass);
+    border-radius: 18px;
+    box-shadow:
+        0 0 0 1px var(--steam-border-strong),
+        inset 0 0 0 2px rgba(255, 255, 255, 0.45),
+        0 10px 24px rgba(84, 58, 28, 0.2);
+    background: #f3e8d1;
+}
+
+.theme-steampunk .profile-name {
+    color: var(--steam-ink-strong);
+    font-family: var(--display);
+}
+
+.theme-steampunk .profile-positions {
+    color: var(--steam-muted);
+    font-family: var(--sans);
+}
+
+.theme-steampunk .profile-positions a {
+    color: var(--steam-ink);
+}
+
+.theme-steampunk .profile-positions a:hover {
+    color: var(--steam-brass);
+    border-bottom-color: rgba(169, 116, 43, 0.45);
+}
+
+.theme-steampunk .profile-location {
+    color: var(--steam-muted-2);
+}
+
+.theme-steampunk .profile-location i {
+    color: var(--steam-brass);
+}
+
+.theme-steampunk .profile-email a {
+    color: var(--steam-copper);
+}
+
+.theme-steampunk .profile-links a {
+    border-color: var(--steam-border);
+    background: rgba(255, 250, 240, 0.6);
+    color: var(--steam-muted);
+}
+
+.theme-steampunk .profile-links a:hover {
+    border-color: var(--steam-brass);
+    background: rgba(169, 116, 43, 0.12);
+    color: var(--steam-brass);
+}
+
+/* --------------------------------------------------------------------------
+   Section labels, tags, bio
+   -------------------------------------------------------------------------- */
+
+.theme-steampunk .section-label,
+.theme-steampunk .eyebrow {
+    color: var(--steam-brass);
+    letter-spacing: 0.12em;
+}
+
+.theme-steampunk .eyebrow::before {
+    content: "\2699\FE0E";
+    margin-right: 0.45em;
+    font-size: 0.95em;
+    color: var(--steam-brass);
+}
+
+.theme-steampunk .card-title-main {
+    color: var(--steam-ink-strong);
+    font-family: var(--display);
+}
+
+.theme-steampunk .card-title-main::after {
+    background: linear-gradient(90deg, var(--steam-brass), rgba(169, 116, 43, 0));
+}
+
+.theme-steampunk .text-profile-bio p {
+    color: var(--steam-ink);
+    line-height: 1.75;
+}
+
+.theme-steampunk .text-profile-bio a {
+    color: var(--steam-copper);
+    border-bottom-color: rgba(169, 95, 53, 0.35);
+}
+
+.theme-steampunk .text-profile-bio a:hover {
+    color: var(--steam-brass);
+    border-bottom-color: var(--steam-brass);
+}
+
+.theme-steampunk .interest-tag {
+    border-color: rgba(169, 116, 43, 0.35);
+    background: rgba(169, 116, 43, 0.08);
+    color: #7c5a2e;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.04em;
+    text-transform: none;
+}
+
+.theme-steampunk .cv-inline-link {
+    color: var(--steam-copper);
+}
+
+.theme-steampunk .cv-inline-link:hover {
+    color: var(--steam-brass);
+}
+
+/* --------------------------------------------------------------------------
+   Experience / news
+   -------------------------------------------------------------------------- */
+
+.theme-steampunk .timeline-dot {
+    background: var(--steam-brass);
+    box-shadow: 0 0 7px rgba(169, 116, 43, 0.25);
+}
+
+.theme-steampunk .experience-name {
+    color: var(--steam-ink);
+    font-family: var(--sans);
+    font-weight: 600;
+}
+
+.theme-steampunk .experience-dept,
+.theme-steampunk .experience-meta {
+    color: var(--steam-muted);
+}
+
+.theme-steampunk .experience-meta em,
+.theme-steampunk .award-date {
+    color: var(--steam-muted-2);
+}
+
+.theme-steampunk .award-item i {
+    color: var(--steam-brass);
+}
+
+.theme-steampunk .news-year {
+    color: var(--steam-copper);
+}
+
+.theme-steampunk .news-title {
+    color: var(--steam-ink);
+    font-family: var(--sans);
+}
+
+.theme-steampunk .news-title a {
+    color: var(--steam-copper);
+}
+
+.theme-steampunk .news-date {
+    color: var(--steam-muted-2);
+}
+
+/* --------------------------------------------------------------------------
+   Publications
+   -------------------------------------------------------------------------- */
+
+.theme-steampunk .pub-title {
+    color: var(--steam-ink-strong);
+    font-family: var(--sans);
+    font-weight: 600;
+}
+
+.theme-steampunk .pub-authors {
+    color: var(--steam-muted);
+}
+
+.theme-steampunk .pub-authors strong {
+    color: var(--steam-copper);
+}
+
+.theme-steampunk .pub-venue {
+    color: var(--steam-muted);
+}
+
+.theme-steampunk .pub-venue i {
+    color: var(--steam-ink);
+}
+
+.theme-steampunk .pub-year {
+    color: var(--steam-copper);
+}
+
+.theme-steampunk .pub-abstract {
+    color: var(--steam-muted);
+}
+
+.theme-steampunk .pub-links a {
+    color: var(--steam-copper);
+}
+
+.theme-steampunk .pub-links a:hover {
+    color: var(--steam-brass);
+}
+
+.theme-steampunk .pub-cover img,
+.theme-steampunk .pub-cover svg {
+    border-color: var(--steam-border);
+    background:
+        radial-gradient(circle at 28% 22%, rgba(169, 116, 43, 0.14), transparent 62%),
+        radial-gradient(circle at 82% 78%, rgba(63, 111, 104, 0.12), transparent 58%),
+        #efe2c8;
+}
+
+.theme-steampunk .pub-badge,
+.theme-steampunk .badge-publication {
+    border-color: rgba(169, 116, 43, 0.4);
+    background: rgba(169, 116, 43, 0.1);
+    color: #7c5a2e;
+}
+
+.theme-steampunk .badge-wip {
+    border-color: rgba(63, 111, 104, 0.4);
+    background: rgba(63, 111, 104, 0.1);
+    color: var(--steam-patina);
+}
+
+.theme-steampunk .badge-accepted {
+    border-color: rgba(169, 116, 43, 0.45);
+    background: rgba(169, 116, 43, 0.12);
+    color: var(--steam-brass);
+}
+
+.theme-steampunk .publication-row:hover {
+    background: rgba(169, 116, 43, 0.045);
+}
+
+.theme-steampunk .year-heading {
+    color: var(--steam-ink-strong);
+    font-family: var(--display);
+}
+
+.theme-steampunk .year-heading::after {
+    background: linear-gradient(90deg, var(--steam-border), transparent);
+}
+
+.theme-steampunk .year-nav .nav-link {
+    color: var(--steam-muted);
+}
+
+.theme-steampunk .year-nav .nav-link.active {
+    background: rgba(169, 116, 43, 0.12);
+    color: var(--steam-brass);
+}
+
+.theme-steampunk .see-all,
+.theme-steampunk .publication-footer a {
+    color: var(--steam-copper) !important;
+}
+
+.theme-steampunk .see-all:hover,
+.theme-steampunk .publication-footer a:hover {
+    color: var(--steam-brass) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Beyond research
+   -------------------------------------------------------------------------- */
+
+.theme-steampunk .beyond-intro {
+    color: var(--steam-ink);
+    font-family: var(--sans);
+}
+
+.theme-steampunk .beyond-subtitle {
+    color: var(--steam-muted);
+}
+
+.theme-steampunk .beyond-subtitle i {
+    color: var(--steam-brass);
+}
+
+.theme-steampunk .beyond-tags span {
+    border-color: var(--steam-border);
+    background: rgba(255, 250, 240, 0.55);
+    color: var(--steam-ink);
+    font-family: var(--sans);
+}
+
+.theme-steampunk .beyond-quote {
+    border-left-color: var(--steam-brass);
+    background: linear-gradient(90deg, rgba(169, 116, 43, 0.12), transparent 72%);
+    color: var(--steam-ink);
+    font-family: var(--sans);
+    font-style: italic;
+}
+
+.theme-steampunk .beyond-quote-mark {
+    color: var(--steam-brass);
+}
+
+/* --------------------------------------------------------------------------
+   Page headers, CV, footer
+   -------------------------------------------------------------------------- */
+
+.theme-steampunk .page-header h1 {
+    color: var(--steam-ink-strong);
+    font-family: var(--display);
+}
+
+.theme-steampunk .page-lede {
+    color: var(--steam-muted);
+    font-family: var(--sans);
+}
+
+.theme-steampunk .page-lede a {
+    color: var(--steam-copper);
+}
+
+.theme-steampunk .footer {
+    border-top: 2px solid var(--steam-brass);
+    background: #2f2419;
+}
+
+.theme-steampunk .footer-meta {
+    color: #d8c6a8;
+}
+
+.theme-steampunk .footer-meta a {
+    color: #e7d4b2;
+}
+
+.theme-steampunk .footer-meta a:hover {
+    color: #f0c97a;
+}
+
+.theme-steampunk .footer-sep {
+    color: #7a6448;
+}
+
+/* --------------------------------------------------------------------------
+   Deadline Drive — brass instrument panel
+   -------------------------------------------------------------------------- */
+
+.theme-steampunk .lab-card {
+    --lab-muted: #6f5d47;
+    --lab-dim: #8c785e;
+
+    background-color: #fbf4e4;
+    background-image:
+        radial-gradient(circle at 14px 14px, rgba(169, 116, 43, 0.8) 0 2.2px, transparent 3px),
+        radial-gradient(circle at calc(100% - 14px) 14px, rgba(169, 116, 43, 0.8) 0 2.2px, transparent 3px),
+        radial-gradient(circle at 14px calc(100% - 14px), rgba(169, 116, 43, 0.8) 0 2.2px, transparent 3px),
+        radial-gradient(circle at calc(100% - 14px) calc(100% - 14px), rgba(169, 116, 43, 0.8) 0 2.2px, transparent 3px),
+        linear-gradient(180deg, #fdf8ec, #f4e8d0);
+    background-repeat: no-repeat;
+    background-size: 28px 28px, 28px 28px, 28px 28px, 28px 28px, auto;
+    background-position: top left, top right, bottom left, bottom right, center;
+    border-color: var(--steam-border) !important;
+    box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.6),
+        inset 0 0 0 8px rgba(169, 116, 43, 0.07),
+        0 16px 34px rgba(84, 58, 28, 0.18);
+}
+
+.theme-steampunk .lab-heading h2 {
+    color: var(--steam-ink-strong);
+    font-family: var(--display);
+}
+
+.theme-steampunk .lab-sub {
+    color: var(--steam-muted);
+    font-family: var(--sans);
+}
+
+.theme-steampunk .dd-status {
+    border-color: var(--steam-border-strong);
+    background: rgba(255, 250, 240, 0.55);
+    color: var(--steam-muted);
+    font-family: var(--mono);
+}
+
+.theme-steampunk .dd-status.is-ok {
+    border-color: rgba(63, 111, 104, 0.5);
+    background: rgba(63, 111, 104, 0.1);
+    color: var(--steam-patina);
+}
+
+.theme-steampunk .dd-status.is-risk {
+    border-color: rgba(176, 125, 42, 0.5);
+    background: rgba(176, 125, 42, 0.12);
+    color: #8c5b16;
+}
+
+.theme-steampunk .dd-status.is-miss {
+    border-color: rgba(143, 47, 47, 0.55);
+    background: rgba(143, 47, 47, 0.1);
+    color: var(--steam-oxblood);
+}
+
+.theme-steampunk .dd-status.is-warm {
+    border-color: var(--steam-border);
+    color: var(--steam-muted-2);
+}
+
+.theme-steampunk .dd-ghost-btn {
+    border-color: var(--steam-border-strong);
+    background: rgba(255, 250, 240, 0.5);
+    color: var(--steam-muted);
+    font-family: var(--mono);
+}
+
+.theme-steampunk .dd-ghost-btn:hover {
+    border-color: var(--steam-brass);
+    background: rgba(169, 116, 43, 0.1);
+    color: var(--steam-brass);
+}
+
+.theme-steampunk .dd-stage-wrap {
+    border-color: var(--steam-border-strong);
+    background: #241a11;
+    box-shadow: inset 0 0 0 1px rgba(255, 233, 198, 0.08);
+}
+
+.theme-steampunk .dd-stage-caption {
+    color: rgba(238, 222, 193, 0.78);
+    font-family: var(--mono);
+}
+
+.theme-steampunk .dd-hotspot {
+    border-bottom-color: rgba(199, 154, 74, 0.5);
+}
+
+.theme-steampunk .dd-hotspot:hover,
+.theme-steampunk .dd-hotspot:focus-visible {
+    border-bottom-color: var(--steam-brass-light);
+    color: var(--steam-brass-light);
+}
+
+.theme-steampunk .dd-brain {
+    border-color: var(--steam-border);
+    background: linear-gradient(180deg, #f9f1de, #efe2c9);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.55);
+}
+
+.theme-steampunk .dd-panel-head {
+    color: var(--steam-brass);
+    font-family: var(--mono);
+}
+
+.theme-steampunk .dd-panel-head span:last-child {
+    color: var(--steam-muted-2);
+}
+
+.theme-steampunk .dd-flow {
+    color: var(--steam-muted);
+    font-family: var(--mono);
+}
+
+.theme-steampunk .dd-flow i {
+    color: var(--steam-copper);
+}
+
+.theme-steampunk .dd-flow b {
+    color: var(--steam-copper);
+}
+
+.theme-steampunk .dd-slot {
+    border-color: var(--steam-border);
+    background: linear-gradient(180deg, #fcf7ea, #f2e6cd);
+    color: var(--steam-muted-2);
+    font-family: var(--mono);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.theme-steampunk .dd-slot.is-resident {
+    border-color: var(--c);
+    background: color-mix(in srgb, var(--c) 14%, #f7edd8);
+    color: var(--c);
+}
+
+.theme-steampunk .dd-slot.is-selected {
+    box-shadow: 0 0 0 1px currentColor, 0 0 12px rgba(169, 116, 43, 0.25);
+}
+
+.theme-steampunk .dd-slot.is-loading {
+    border-color: var(--steam-copper);
+    color: var(--steam-copper);
+}
+
+.theme-steampunk .dd-slot.is-evicted {
+    border-color: var(--steam-oxblood);
+    background: rgba(143, 47, 47, 0.08);
+    color: var(--steam-oxblood);
+}
+
+.theme-steampunk .dd-control {
+    color: var(--steam-muted);
+    font-family: var(--mono);
+}
+
+.theme-steampunk .dd-control output {
+    color: var(--steam-copper);
+}
+
+.theme-steampunk .dd-control input[type="range"] {
+    background: linear-gradient(90deg, var(--steam-copper), rgba(169, 95, 53, 0.2));
+}
+
+.theme-steampunk .dd-control input[type="range"]::-webkit-slider-thumb {
+    width: 15px;
+    height: 15px;
+    background: radial-gradient(circle at 35% 32%, #e4bf78, #a9742b 62%, #6e4a1e);
+    box-shadow: 0 1px 3px rgba(60, 40, 15, 0.4);
+}
+
+.theme-steampunk .dd-control input[type="range"]::-moz-range-thumb {
+    width: 15px;
+    height: 15px;
+    background: radial-gradient(circle at 35% 32%, #e4bf78, #a9742b 62%, #6e4a1e);
+    box-shadow: 0 1px 3px rgba(60, 40, 15, 0.4);
+}
+
+.theme-steampunk .dd-chip,
+.theme-steampunk .dd-seg,
+.theme-steampunk .dd-paper-chip {
+    border-color: var(--steam-border);
+    background: rgba(255, 250, 240, 0.55);
+    color: var(--steam-muted);
+}
+
+.theme-steampunk .dd-chip:hover,
+.theme-steampunk .dd-seg:hover,
+.theme-steampunk .dd-paper-chip:hover {
+    border-color: var(--steam-brass);
+    color: var(--steam-brass);
+}
+
+.theme-steampunk .dd-chip.is-active,
+.theme-steampunk .dd-seg.is-active {
+    border-color: var(--steam-copper);
+    background: rgba(169, 95, 53, 0.12);
+    color: var(--steam-copper);
+}
+
+.theme-steampunk .dd-metrics {
+    color: var(--steam-muted);
+    font-family: var(--mono);
+}
+
+.theme-steampunk .dd-metrics em {
+    color: var(--steam-muted-2);
+}
+
+.theme-steampunk .dd-metrics b {
+    color: var(--steam-ink-strong);
+}
+
+.theme-steampunk .dd-hot-hint {
+    color: var(--steam-muted);
+    font-family: var(--mono);
+}
+
+.theme-steampunk .dd-hot-hint i {
+    color: var(--steam-brass);
+}
+
+.theme-steampunk .dd-try {
+    color: var(--steam-muted);
+    font-family: var(--sans);
+    font-size: 0.82rem;
+}
+
+.theme-steampunk .dd-try strong {
+    color: var(--steam-copper);
+}
+
+.theme-steampunk .dd-why {
+    border-top-color: var(--steam-border);
+    color: var(--steam-muted);
+    font-family: var(--sans);
+}
+
+.theme-steampunk .dd-why summary {
+    color: var(--steam-ink);
+    font-family: var(--mono);
+}
+
+.theme-steampunk .dd-why a {
+    color: var(--steam-copper);
+}
+
+.theme-steampunk .dd-paper-pop {
+    border: 1px solid var(--steam-border-strong);
+    background: #fbf4e4;
+    box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.6),
+        inset 0 0 0 6px rgba(169, 116, 43, 0.08),
+        0 18px 42px rgba(60, 40, 15, 0.3);
+}
+
+.theme-steampunk .dd-paper-close {
+    color: var(--steam-muted);
+}
+
+.theme-steampunk .dd-paper-close:hover {
+    background: rgba(169, 116, 43, 0.1);
+    color: var(--steam-brass);
+}
+
+.theme-steampunk .dd-paper-topic {
+    color: var(--steam-brass);
+    font-family: var(--mono);
+}
+
+.theme-steampunk .dd-paper-title {
+    color: var(--steam-ink-strong);
+    font-family: var(--sans);
+}
+
+.theme-steampunk .dd-paper-meta {
+    color: var(--steam-muted);
+    font-family: var(--mono);
+}
+
+.theme-steampunk .dd-paper-desc {
+    color: var(--steam-muted);
+    font-family: var(--sans);
+}
+
+.theme-steampunk .dd-paper-link {
+    color: var(--steam-copper);
+}
+
+.theme-steampunk .dd-stage-wrap.is-spotlit,
+.theme-steampunk #dd-rack.is-spotlit,
+.theme-steampunk #dd-chart.is-spotlit {
+    box-shadow: 0 0 0 1px var(--steam-brass), 0 0 22px rgba(169, 116, 43, 0.2);
+}
+
+/* --------------------------------------------------------------------------
+   Responsive tweaks
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 575.98px) {
+    .theme-steampunk body.bg-light {
+        background-image:
+            radial-gradient(700px 420px at 10% -10%, rgba(255, 249, 234, 0.9), transparent 60%),
+            repeating-linear-gradient(0deg, rgba(120, 90, 50, 0.03) 0 1px, transparent 1px 40px),
+            repeating-linear-gradient(90deg, rgba(120, 90, 50, 0.03) 0 1px, transparent 1px 40px);
+    }
+}
+
+/* Mobile publication rows keep the parchment surface */
+.theme-steampunk .pub-mobile-body {
+    background: linear-gradient(180deg, #fbf4e4, #f5ead5);
+}
+
+.theme-steampunk .publication-row-mobile:hover .pub-mobile-body {
+    border-left-color: var(--steam-brass);
+}
