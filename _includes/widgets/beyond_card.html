@@ -2,14 +2,26 @@
     <div class="card-body">
         <h6 class="section-label"><i class="fas fa-terminal" aria-hidden="true"></i> Beyond Research</h6>
 
-        <p class="beyond-intro">
-            In my first year as a master's student, I came across
-            <a href="{{ '/files/Semi-Federated.pdf' | relative_url }}" target="_blank" rel="noopener">a paper on
-            semi-federated scheduling of real-time systems</a> — and decided then and there that I wanted to do
-            real-time scheduling and publish a paper at RTSS. Years later, I never became a pure real-time
-            scheduling theory person, but I am still working every day toward becoming a real-time systems
-            researcher.
-        </p>
+        <div class="beyond-paper">
+            <p class="beyond-paper-kicker"><i class="fas fa-star" aria-hidden="true"></i> the paper that started it all</p>
+            <h4 class="beyond-paper-title">Semi-Federated Scheduling of Parallel Real-Time Tasks on Multiprocessors</h4>
+            <p class="beyond-paper-authors">Xu Jiang · Nan Guan · Xiang Long · Wang Yi</p>
+            <p class="beyond-paper-venue">IEEE Real-Time Systems Symposium (RTSS) 2017 · DOI 10.1109/RTSS.2017.00015</p>
+            <p class="beyond-intro">
+                In my first year as a master's student, I came across this paper by Nan Guan and his
+                co-authors. I still remember how elegant the idea felt: a heavy DAG task with processing
+                capacity <em>x + &delta;</em> is granted only <em>x</em> dedicated processors, while the
+                remaining &delta; part is scheduled together with light tasks on shared processors. It is
+                still one of my favourite papers in real-time scheduling — and it is the reason I decided
+                to do research and, eventually, to pursue a Ph.D. with Nan at CityU. Years later I never
+                became a pure real-time scheduling theorist, but I am still working every day toward
+                becoming a real-time systems researcher. This paper is still the standard I measure my
+                own work against.
+            </p>
+            <a class="beyond-paper-link" href="https://doi.org/10.1109/RTSS.2017.00015" target="_blank" rel="noopener">
+                Read the paper at IEEE <i class="fas fa-arrow-right" aria-hidden="true"></i>
+            </a>
+        </div>
 
         <div class="row">
             <div class="col-md-6">

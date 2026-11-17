@@ -893,6 +893,67 @@ button:focus-visible {
     font-size: 0.88rem;
 }
 
+.beyond-paper {
+    margin: 0 0 1.4rem;
+    padding: 1.1rem 1.25rem;
+    border: 1px solid var(--border);
+    border-left: 2px solid var(--accent);
+    border-radius: 0 12px 12px 0;
+    background: linear-gradient(90deg, var(--accent-soft), transparent 78%);
+}
+
+.beyond-paper-kicker {
+    margin: 0 0 0.4rem;
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.beyond-paper-kicker i {
+    margin-right: 0.35rem;
+}
+
+.beyond-paper-title {
+    margin: 0 0 0.35rem;
+    color: var(--text-strong);
+    font-family: var(--display);
+    font-size: 1.12rem;
+    line-height: 1.4;
+}
+
+.beyond-paper-authors {
+    margin: 0 0 0.15rem;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 0.7rem;
+}
+
+.beyond-paper-venue {
+    margin: 0 0 0.75rem;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 0.66rem;
+}
+
+.beyond-paper .beyond-intro {
+    margin-bottom: 0.75rem;
+}
+
+.beyond-paper-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 0.7rem;
+}
+
+.beyond-paper-link:hover {
+    color: var(--text-strong);
+}
+
 .beyond-subtitle {
     margin: 0.9rem 0 0.6rem;
     color: var(--muted);
