@@ -64,6 +64,10 @@ education:
     date: "Sep. 2015 - Jun. 2019"
 
 experience:
+  - name: "City University of Hong Kong Shenzhen Research Institute · Hon Hai Research Institute"
+    dept: "Light Truck Development · with Prof. Nan Guan and Prof. Jianping Wang"
+    position: "Autonomous Driving Research"
+    date: "Jul. 2022 - May 2023"
   - name: "Chengdu Taiji Bear Technology Co., Ltd."
     dept: "FPGA Group"
     position: "Research Intern"
