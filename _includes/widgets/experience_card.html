@@ -50,6 +50,23 @@
                         </div>
                         {% endif %}
 
+                        {% if profile.service %}
+                        <div class="experience-block">
+                            <h6 class="section-label">Academic Service</h6>
+                            <ul class="list-unstyled mb-1">
+                                {% for item in profile.service %}
+                                <li class="experience-item">
+                                    <span class="timeline-dot" aria-hidden="true"></span>
+                                    <div class="media-body">
+                                        <div class="experience-name">{{ item.name }}</div>
+                                        {% if item.position %}<div class="experience-dept">{{ item.position }}</div>{% endif %}
+                                    </div>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+
                         {% if profile.awards %}
                         <div class="experience-block">
                             <h6 class="section-label">Honors &amp; Awards</h6>

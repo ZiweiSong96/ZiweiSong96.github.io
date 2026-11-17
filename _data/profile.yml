@@ -77,6 +77,12 @@ experience:
     position: "Research Intern"
     date: "Jul. 2016 - Aug. 2016"
 
+service:
+  - name: "IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems (IEEE TCAD)"
+    position: "Invited Reviewer"
+  - name: "ACM Computing Surveys (CSUR)"
+    position: "Invited Reviewer"
+
 awards:
   - name: "Outstanding Graduate, Sichuan Province"
     date: "2022"
