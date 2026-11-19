@@ -1531,6 +1531,162 @@
         ctx.restore();
     }
 
+    function drawAirship(ctx, trackY) {
+        var now = performance.now();
+        var reduced = reduceMotion.matches;
+        var x = roadW * 0.46;
+        var y = trackY - Math.min(118, roadH * 0.42);
+        var s = clamp(roadW / 600, 0.7, 1.05);
+        var bob = reduced ? 0 : Math.sin(now / 1500) * 1.1;
+
+        ctx.save();
+        ctx.translate(x, y + bob);
+        ctx.scale(s, s);
+
+        // tail fins
+        ctx.fillStyle = '#6b451f';
+        ctx.strokeStyle = 'rgba(239, 196, 120, 0.55)';
+        ctx.lineWidth = 0.8;
+        ctx.beginPath();
+        ctx.moveTo(-36, -8);
+        ctx.lineTo(-55, -18);
+        ctx.lineTo(-48, 0);
+        ctx.lineTo(-55, 18);
+        ctx.lineTo(-36, 8);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // envelope
+        var envelope = ctx.createLinearGradient(0, -18, 0, 18);
+        envelope.addColorStop(0, '#e0b66a');
+        envelope.addColorStop(0.45, '#b3813a');
+        envelope.addColorStop(1, '#6b451f');
+        ctx.fillStyle = envelope;
+        ctx.strokeStyle = 'rgba(239, 196, 120, 0.7)';
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 46, 16, -0.04, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // brass ribs
+        ctx.strokeStyle = 'rgba(239, 196, 120, 0.35)';
+        ctx.lineWidth = 0.8;
+        [-30, -15, 15, 30].forEach(function (ribX) {
+            ctx.beginPath();
+            ctx.moveTo(ribX, -14);
+            ctx.quadraticCurveTo(ribX + 4, 0, ribX, 14);
+            ctx.stroke();
+        });
+        ctx.strokeStyle = 'rgba(107, 69, 31, 0.45)';
+        ctx.beginPath();
+        ctx.moveTo(-40, 0);
+        ctx.lineTo(40, 0);
+        ctx.stroke();
+
+        // name plate
+        ctx.fillStyle = 'rgba(36, 26, 18, 0.78)';
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.55)';
+        roundRect(ctx, -18, -6, 36, 8, 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(239, 196, 120, 0.9)';
+        ctx.font = '4px "IBM Plex Mono", ui-monospace, monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('AUTOWARE', 0, 0);
+
+        // gondola
+        ctx.fillStyle = '#5b3b1c';
+        ctx.strokeStyle = 'rgba(239, 196, 120, 0.55)';
+        roundRect(ctx, -19, 13, 38, 12, 3);
+        ctx.fill();
+        ctx.stroke();
+        for (var win = 0; win < 3; win += 1) {
+            ctx.fillStyle = 'rgba(242, 184, 107, 0.7)';
+            roundRect(ctx, -14 + win * 11, 17, 7, 4, 1);
+            ctx.fill();
+        }
+
+        // side engines and propellers
+        [-23, 23].forEach(function (engineX) {
+            ctx.fillStyle = '#2b1e14';
+            roundRect(ctx, engineX - 4, 12, 8, 8, 2);
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(199, 154, 74, 0.55)';
+            ctx.stroke();
+            ctx.save();
+            ctx.translate(engineX, 12);
+            ctx.rotate(now / 140);
+            ctx.strokeStyle = 'rgba(239, 196, 120, 0.65)';
+            ctx.lineWidth = 0.8;
+            for (var blade = 0; blade < 3; blade += 1) {
+                ctx.rotate(Math.PI * 2 / 3);
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.lineTo(0, -5);
+                ctx.stroke();
+            }
+            ctx.restore();
+        });
+
+        // tail propeller
+        ctx.save();
+        ctx.translate(-50, 0);
+        ctx.rotate(now / 180);
+        ctx.strokeStyle = 'rgba(239, 196, 120, 0.7)';
+        ctx.lineWidth = 0.8;
+        for (var tailBlade = 0; tailBlade < 3; tailBlade += 1) {
+            ctx.rotate(Math.PI * 2 / 3);
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, -6);
+            ctx.stroke();
+        }
+        ctx.restore();
+
+        // sensor turret under the gondola
+        ctx.fillStyle = '#2b1e14';
+        ctx.beginPath();
+        ctx.arc(0, 27, 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(63, 111, 104, 0.8)';
+        ctx.lineWidth = 0.9;
+        ctx.beginPath();
+        ctx.arc(0, 27, 5, Math.PI * 0.15, Math.PI * 1.85);
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(239, 196, 120, 0.8)';
+        ctx.beginPath();
+        ctx.arc(0, 27, 1.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // hanging rope ladder
+        ctx.strokeStyle = 'rgba(199, 154, 74, 0.42)';
+        ctx.lineWidth = 0.7;
+        ctx.beginPath();
+        ctx.moveTo(12, 25);
+        ctx.lineTo(12, 49);
+        ctx.moveTo(17, 25);
+        ctx.lineTo(17, 49);
+        ctx.stroke();
+        [30, 36, 42].forEach(function (rungY) {
+            ctx.beginPath();
+            ctx.moveTo(12, rungY);
+            ctx.lineTo(17, rungY);
+            ctx.stroke();
+        });
+
+        // steam from the tail
+        for (var puff = 0; puff < 3; puff += 1) {
+            var p = ((now / 1600) + puff / 3) % 1;
+            ctx.fillStyle = 'rgba(238, 226, 203, ' + ((1 - p) * 0.18).toFixed(3) + ')';
+            ctx.beginPath();
+            ctx.arc(-44 - p * 16, -8 - p * 7, 1.8 + p * 4, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        ctx.restore();
+    }
+
     function drawBackdrop(ctx, trackY) {
         var sky = ctx.createLinearGradient(0, 0, 0, trackY);
         sky.addColorStop(0, '#17110c');
@@ -1574,6 +1730,7 @@
         drawMiniStation(ctx, trackY, roadW * 0.04, roadW * 0.18, 'UESTC', 'START · 2015–22', {});
         drawNeuronTree(ctx, roadW * 0.21, trackY - 2);
         drawCheckpoint(ctx, trackY);
+        drawAirship(ctx, trackY);
         drawMiniStation(ctx, trackY, roadW * 0.60, roadW * 0.33, 'CITYU MLAB', '2023–NOW', { clock: true, major: true });
         drawMoEStack(ctx, roadW * 0.665, trackY - 2);
     }
@@ -2663,8 +2820,6 @@
         drawSignals(ctx, trackY);
         drawLoopPaths(ctx);
         drawLocomotive(ctx);
-        var forecourtY = drawForecourt(ctx, trackY);
-        drawTruck(ctx, roadW * 0.44, forecourtY + 2);
         drawPlatformDetails(ctx, trackY);
         drawRobot(ctx);
 
